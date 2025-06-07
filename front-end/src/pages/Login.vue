@@ -1,11 +1,10 @@
 <template>
-  <v-container class="fill-height" fluid>
-    <v-row align="center" justify="center" >
-      <v-col cols="12" sm="8" md="4" >
+  <v-container class="fill-height ">
+    <v-row align="center" justify="center">
+      <v-col cols="12" md="4" sm="8">
         <v-card class="elevation-3">
-        
-          <v-card-title class="justify-center">
-            <span class="text-h5">Entrar</span>
+          <v-card-title class="justify-center d-flex text-center pa-10">
+            <span class="text-h5 ">Entrar</span>
           </v-card-title>
 
           <v-card-text>
@@ -19,13 +18,20 @@
               <v-text-field
                 v-model="password"
                 label="Senha"
-                type="password"
                 prepend-inner-icon="mdi-lock"
                 required
+                type="password"
               />
-              <v-btn class="mt-4" type="submit" block color="primary">
+              <v-btn
+                block
+                class="mt-4"
+                color="primary"
+                prepend-icon="mdi-login"
+                type="submit"
+              >
                 Login
               </v-btn>
+
             </v-form>
           </v-card-text>
         </v-card>
@@ -35,15 +41,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+  import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
 
-const email = ref('')
-const password = ref('')
-const router = useRouter()
+  const email = ref('')
+  const password = ref('')
+  const router = useRouter()
 
-function onSubmit() {
-  // por enquanto só redireciona, depois integraremos com auth.service.login()
-  router.push('/home')
-}
+  function onSubmit () {
+    router.push('/home')
+  }
 </script>
