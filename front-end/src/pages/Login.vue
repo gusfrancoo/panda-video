@@ -37,18 +37,47 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-snackbar
+      v-model="showError"
+      color="error"
+      :timeout="4000"
+      top
+    >
+      {{ errorMessage }}
+      <template #actions>
+        <v-btn text @click="showError = false">
+          Fechar
+        </v-btn>
+      </template>
+    </v-snackbar>
+
   </v-container>
 </template>
 
 <script setup>
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import { login } from '@/api/auth.api'
 
   const email = ref('')
   const password = ref('')
   const router = useRouter()
+  const showError = ref(false)
+  const errorMessage = ref('')
 
-  function onSubmit () {
-    router.push('/home')
+  async function onSubmit () {
+    try {
+      const { data } = await login({
+        email: email.value,
+        password: password.value,
+      })
+      localStorage.setItem('token', data.token)
+      router.push('/home')
+    } catch (error) {
+      console.log(error)
+      errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao fazer login. Tente novamente.'
+      showError.value = true
+    }
   }
 </script>
