@@ -1,11 +1,26 @@
 <template>
-  <v-app-bar app color="primary" dark>
+  <v-app-bar app color="grey-darken-4" dark>
     <v-container>
-      <v-row class="d-flex">
+      <v-row class="d-flex align-center">
         <v-toolbar-title>Panda Video</v-toolbar-title>
         <v-spacer />
-        <v-btn text to="/home">Home</v-btn>
-        <v-btn append-icon="mdi-logout" text @click="onLogout">Logout</v-btn>
+        <v-tabs>
+          <v-tab
+            class="mx-2"
+            text
+            to="/home"
+          >
+            Home
+          </v-tab>
+          <v-tab
+            class="mx-2"
+            text
+            @click="onLogout"
+          >
+            Logout
+            <v-icon class="px-5" right>mdi-logout</v-icon>
+          </v-tab>
+        </v-tabs>
       </v-row>
     </v-container>
   </v-app-bar>

@@ -2,43 +2,63 @@
   <v-container class="h-100">
     <v-row class="pt-6">
       <!-- Breadcrumb + Busca -->
-      <v-breadcrumbs class="mb-4 elevation-2 rounded w-100 cursor-pointer " divider=">" :items="breadcrumbs" style="user-select: none;">
+      <v-breadcrumbs
+        class="mb-4 elevation-2 w-100 cursor-pointer "
+        divider="/"
+        :items="breadcrumbs"
+        rounded
+        style="user-select: none;"
+      >
         <template #item="{ item }">
           <v-breadcrumbs-item
             :disabled="!item.clickable"
             @click="() => item.onClick && item.onClick()"
           >
+            <v-icon class="mr-1" small>{{ item.icon }}</v-icon>
             {{ item.text }}
           </v-breadcrumbs-item>
         </template>
       </v-breadcrumbs>
 
     </v-row>
-    <v-row class="px-8 py-5">
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        class="w-50"
-        color="grey lighten-2"
-        density="comfortable"
-        label="Buscar vídeos"
-        variant="underlined"
-      />
-
+    <v-row align="center" class="px-4 py-4 d-flex justify-end">
+      <v-col cols="12" lg="4" md="6">
+        <v-text-field
+          v-model="search"
+          :clearable="true"
+          density="comfortable"
+          fixed-header
+          placeholder="Filtre por nome de pasta ou vídeo…"
+          prepend-inner-icon="mdi-magnify"
+          variant="underlined"
+          @click:clear="search = ''"
+        />
+      </v-col>
     </v-row>
-
     <v-data-table
-      class="elevation-2 rounded hover:cursor-pointer"
-      :columns="columns"
+      v-model="selected"
+      class="elevation-3 rounded"
       dense
-      :fixed-header="true"
+      density="comfortable"
+      :headers="columns"
       :hover="true"
       item-key="id"
       :items="filteredItems"
       :loading="isLoading"
+      show-select
     >
+      <template #top>
+        <v-toolbar v-if="selected.length > 0" dense flat>
+          <v-toolbar-title>{{ selected.length }} selecionado(s)</v-toolbar-title>
+          <v-spacer />
+          <v-btn icon @click="deleteSelected">
+            <v-icon color="red">mdi-delete</v-icon>
+          </v-btn>
+        </v-toolbar>
+      </template>
+
       <template #item.name="{ item }">
-        <div v-if="item.isFolder" class="d-flex align-center" style="max-width: 200px;" @click="enterFolder(item)">
+        <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;" @click="enterFolder(item)">
           <v-icon class="mr-1 " small>mdi-folder</v-icon>
           <span class=" text-truncate text-no-wrap">{{ item.name }}</span>({{ item.count }})
         </div>
@@ -57,13 +77,25 @@
       <template #item.created_at="{ item }">
         {{ formatDate(item.created_at) }}
       </template>
+
+      <template #item.actions="{ item }">
+        <v-btn icon small variant="plain" @click="editItem(item)">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn icon small variant="plain" @click="deleteItem(item)">
+          <v-icon color="red">mdi-delete</v-icon>
+        </v-btn>
+      </template>
+
     </v-data-table>
   </v-container>
 </template>
 
 <script setup>
+  import { useRouter } from 'vue-router'
   import { getVideos } from '@/api/videos.api'
 
+  const router = useRouter()
   const showError = ref(false)
   const errorMessage = ref('')
   const params = ref({}) // recebe os parametros de busca
@@ -71,12 +103,14 @@
   const currentFolder = ref('')
   const search = ref('')
   const isLoading = ref(false)
+  const selected = ref([])
 
   const columns = [
     { title: 'Nome', key: 'name', sortable: true },
     { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right' },
     { title: 'Duração', key: 'length', sortable: true, align: 'right' },
     { title: 'Modificação', key: 'created_at', sortable: true },
+    { title: 'Ações', key: 'actions', sortable: false, align: 'center' },
   ]
 
   onMounted (async () => {
@@ -151,15 +185,21 @@
         text: 'Home',
         clickable: currentFolder.value !== null,
         onClick: () => (currentFolder.value = null),
+        icon: 'mdi-home', // ícone para o nível Home
       },
     ]
+
     if (currentFolder.value) {
+      // supondo que você saiba o nome da pasta atual
+      const folderName = tableItems.value.find(f => f.id === currentFolder.value)?.name
       bc.push({
-        text: 'Sub - Pasta',
+        text: folderName || 'Pasta',
         clickable: true,
-        // onClick: () => {  }
+        onClick: () => {}, // se quiser navegar para um nível acima
+        icon: 'mdi-folder', // ícone para subpasta
       })
     }
+
     return bc
   })
 
@@ -189,6 +229,19 @@
       month: 'short',
       year: 'numeric',
     })
+  }
+
+  async function deleteSelected () {
+    // lógica de exclusão em lote
+    console.log('Excluir em lote:', selected.value)
+  }
+
+  function editItem (item) {
+    console.log('Editar item:', item)
+  }
+
+  function deleteItem (item) {
+    console.log('Excluir item:', item)
   }
 
 </script>
