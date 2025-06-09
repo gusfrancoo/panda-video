@@ -1,0 +1,43 @@
+# arquivos do macOS / Windows
+.DS_Store
+Thumbs.db
+
+# dependências
+node_modules/
+
+# artefatos de build / dist
+dist/
+build/
+coverage/
+
+# arquivos de log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# arquivos de ambiente
+.env
+.env.local
+.env.*.local
+
+# tratar casos específicos de sub-projetos
+/back-end/.env
+/front-end/.env
+
+# lockfiles opcionalmente (se você não quiser versionar)
+/pnpm-lock.yaml
+/yarn.lock
+/package-lock.json
+
+# IDEs e editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Outros
+logs/
+*.log
