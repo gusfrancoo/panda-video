@@ -45,6 +45,7 @@
       item-key="id"
       :items="filteredItems"
       :loading="isLoading"
+      :row-props="rowProps"
       show-select
     >
       <template #top>
@@ -118,6 +119,14 @@
     await fetchVideos()
     isLoading.value = false
   })
+
+  function rowProps () {
+    return {
+      class: {
+        'cursor-pointer': true,
+      },
+    }
+  }
 
   async function fetchVideos () {
     try {
@@ -245,3 +254,10 @@
   }
 
 </script>
+
+<style scoped>
+/* atinge apenas as <tr> do corpo da tabela (não cabeçalho) */
+::v-deep .v-data-table__wrapper tbody tr {
+  cursor: pointer;
+}
+</style>
