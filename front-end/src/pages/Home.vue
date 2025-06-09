@@ -2,7 +2,7 @@
   <v-container class="h-100">
     <v-row class="pt-6">
       <!-- Breadcrumb + Busca -->
-      <v-breadcrumbs class="mb-4 elevation-2 rounded w-100" divider=">" :items="breadcrumbs">
+      <v-breadcrumbs class="mb-4 elevation-2 rounded w-100 cursor-pointer " divider=">" :items="breadcrumbs" style="user-select: none;">
         <template #item="{ item }">
           <v-breadcrumbs-item
             :disabled="!item.clickable"
@@ -28,17 +28,19 @@
     </v-row>
 
     <v-data-table
-      class="elevation-2 rounded"
+      class="elevation-2 rounded hover:cursor-pointer"
+      :columns="columns"
       dense
-      :headers="headers"
+      :fixed-header="true"
+      :hover="true"
       item-key="id"
       :items="filteredItems"
       :loading="isLoading"
     >
       <template #item.name="{ item }">
-        <div v-if="item.isFolder" @click="enterFolder(item)">
-          <v-icon class="mr-1" small>mdi-folder</v-icon>
-          {{ item.name }} ({{ item.count }})
+        <div v-if="item.isFolder" class="d-flex align-center" style="max-width: 200px;" @click="enterFolder(item)">
+          <v-icon class="mr-1 " small>mdi-folder</v-icon>
+          <span class=" text-truncate text-no-wrap">{{ item.name }}</span>({{ item.count }})
         </div>
         <div v-else>
           <v-icon class="mr-1" small>mdi-video</v-icon>
@@ -70,11 +72,11 @@
   const search = ref('')
   const isLoading = ref(false)
 
-  const headers = [
-    { text: 'Nome', value: 'name' },
-    { text: 'Tamanho', value: 'storage_size', align: 'right' },
-    { text: 'Duração', value: 'length', align: 'right' },
-    { text: 'Modificação', value: 'created_at' },
+  const columns = [
+    { title: 'Nome', key: 'name', sortable: true },
+    { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right' },
+    { title: 'Duração', key: 'length', sortable: true, align: 'right' },
+    { title: 'Modificação', key: 'created_at', sortable: true },
   ]
 
   onMounted (async () => {
@@ -153,7 +155,7 @@
     ]
     if (currentFolder.value) {
       bc.push({
-        text: `Pasta ${currentFolder.value}`,
+        text: 'Sub - Pasta',
         clickable: true,
         // onClick: () => {  }
       })
