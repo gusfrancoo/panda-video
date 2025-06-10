@@ -1,13 +1,12 @@
 <template>
   <v-container class="h-100">
     <v-row class="pt-6">
-      <!-- Breadcrumb + Busca -->
       <v-breadcrumbs
-        class="mb-4 elevation-2 w-100 cursor-pointer "
+        class="mb-4 elevation-2 w-100 cursor-pointer py-3"
         divider="/"
         :items="breadcrumbs"
         rounded
-        style="user-select: none;"
+        style="user-select: none; background-color: white;"
       >
         <template #item="{ item }">
           <v-breadcrumbs-item
@@ -21,97 +20,113 @@
       </v-breadcrumbs>
 
     </v-row>
-    <v-row align="center" class="px-4 py-4 d-flex justify-end">
-      <v-col cols="12" lg="4" md="6">
-        <v-text-field
-          v-model="search"
-          :clearable="true"
+    <templte v-if="!showVideo" class="">
+      <v-row align="center" class="px-2  d-flex justify-left">
+        <v-col cols="12" lg="4" md="6">
+          <v-text-field
+            v-model="search"
+            :clearable="true"
+            density="comfortable"
+            fixed-header
+            placeholder="Filtre por nome de pasta ou vídeo…"
+            prepend-inner-icon="mdi-magnify"
+            variant="solo"
+            @click:clear="search = ''"
+          />
+        </v-col>
+      </v-row>
+      <v-row class="px-5">
+        <v-data-table
+          v-model="selected"
+          class="elevation-2 rounded"
+          dense
           density="comfortable"
-          fixed-header
-          placeholder="Filtre por nome de pasta ou vídeo…"
-          prepend-inner-icon="mdi-magnify"
-          variant="underlined"
-          @click:clear="search = ''"
-        />
-      </v-col>
-    </v-row>
-    <v-data-table
-      v-model="selected"
-      class="elevation-3 rounded"
-      dense
-      density="comfortable"
-      :headers="columns"
-      :hover="true"
-      item-key="id"
-      :items="filteredItems"
-      :loading="isLoading"
-      :row-props="rowProps"
-      show-select
-    >
-      <template #top>
-        <v-toolbar v-if="selected.length > 0" dense flat>
-          <v-toolbar-title>{{ selected.length }} selecionado(s)</v-toolbar-title>
-          <v-spacer />
-          <v-btn icon @click="deleteSelected">
-            <v-icon color="red">mdi-delete</v-icon>
-          </v-btn>
-        </v-toolbar>
-      </template>
+          :headers="columns"
+          :hover="true"
+          item-key="id"
+          :items="filteredItems"
+          :loading="isLoading"
+          :row-props="rowProps"
+          @click:row="(e, row) => handleRowClick(row)"
+        >
+          <!-- <template #top>
+            <v-toolbar v-if="selected.length > 0" dense flat>
+              <v-toolbar-title>{{ selected.length }} selecionado(s)</v-toolbar-title>
+              <v-spacer />
+              <v-btn icon @click="deleteSelected">
+                <v-icon color="red">mdi-delete</v-icon>
+              </v-btn>
+            </v-toolbar>
+          </template> -->
 
-      <template #item.name="{ item }">
-        <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;" @click="enterFolder(item)">
-          <v-icon class="mr-1 " small>mdi-folder</v-icon>
-          <span class=" text-truncate text-no-wrap">{{ item.name }}</span>({{ item.count }})
-        </div>
-        <div v-else>
-          <v-icon class="mr-1" small>mdi-video</v-icon>
-          {{ item.title }}
-        </div>
-      </template>
+          <template #item.name="{ item }">
+            <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;">
+              <v-icon class="mr-1 " small>mdi-folder</v-icon>
+              <span class=" text-truncate text-no-wrap">{{ item.name }}</span>({{ item.count }})
+            </div>
+            <div v-else>
+              <v-icon class="mr-1" small>mdi-video</v-icon>
+              {{ item.title }}
+            </div>
+          </template>
 
-      <template #item.storage_size="{ item }">
-        {{ formatSize(item.storage_size) }}
-      </template>
-      <template #item.length="{ item }">
-        {{ formatLength(item.length) }}
-      </template>
-      <template #item.created_at="{ item }">
-        {{ formatDate(item.created_at) }}
-      </template>
+          <template #item.storage_size="{ item }">
+            {{ formatSize(item.storage_size) }}
+          </template>
+          <template #item.length="{ item }">
+            {{ formatLength(item.length) }}
+          </template>
+          <template #item.created_at="{ item }">
+            {{ formatDate(item.created_at) }}
+          </template>
 
-      <template #item.actions="{ item }">
-        <v-btn icon small variant="plain" @click="editItem(item)">
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn icon small variant="plain" @click="deleteItem(item)">
-          <v-icon color="red">mdi-delete</v-icon>
-        </v-btn>
-      </template>
+          <!-- <template #item.actions="{ item }">
+            <v-btn icon small variant="plain" @click="editItem(item)">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+            <v-btn icon small variant="plain" @click="deleteItem(item)">
+              <v-icon color="red">mdi-delete</v-icon>
+            </v-btn>
+          </template> -->
 
-    </v-data-table>
+        </v-data-table>
+
+      </v-row>
+
+    </templte>
+    <template v-else>
+      <Video
+        :video="selectedVideo"
+        @back="selectedVideo = null"
+        @save="onSaveVideo"
+      />
+
+    </template>
   </v-container>
 </template>
 
 <script setup>
   import { useRouter } from 'vue-router'
   import { getVideos } from '@/api/videos.api'
+  import Video from '@/components/Video.vue'
 
   const router = useRouter()
   const showError = ref(false)
   const errorMessage = ref('')
-  const params = ref({}) // recebe os parametros de busca
+  const params = ref({})
   const videos = ref([])
   const currentFolder = ref('')
   const search = ref('')
   const isLoading = ref(false)
-  const selected = ref([])
+  const selectedVideo = ref(null)
+  const showVideo = ref(false)
 
   const columns = [
     { title: 'Nome', key: 'name', sortable: true },
     { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right' },
     { title: 'Duração', key: 'length', sortable: true, align: 'right' },
     { title: 'Modificação', key: 'created_at', sortable: true },
-    { title: 'Ações', key: 'actions', sortable: false, align: 'center' },
+    // { title: 'Ações', key: 'actions', sortable: false, align: 'center' },
   ]
 
   onMounted (async () => {
@@ -136,9 +151,8 @@
       videos.value = data.videos
     } catch (error) {
       if (error.response?.status === 401) {
-        // opcional: limpa o token do localStorage/sessionStorage
         localStorage.removeItem('token')
-        router.push({ name: 'Login' }) // ou '/login'
+        router.push({ name: 'Login' })
         return
       }
       errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao buscar os videos. Tente novamente.'
@@ -147,7 +161,6 @@
   }
 
   const tableItems = computed(() => {
-    // agrupa por pasta
     const folders = {}
     const solos = []
     for (const v of videos.value) {
@@ -155,7 +168,7 @@
         if (!folders[v.folder_id]) {
           folders[v.folder_id] = {
             id: v.folder_id,
-            name: `Pasta ${v.folder_id}`, // ou pegue nome real
+            name: `Pasta ${v.folder_id}`,
             isFolder: true,
             count: 0,
           }
@@ -166,14 +179,12 @@
       }
     }
 
-    // se estamos na pasta X, mostramos só os vídeos dela
     if (currentFolder.value) {
       return videos.value
         .filter(v => v.folder_id === currentFolder.value)
         .map(v => ({ ...v, isFolder: false }))
     }
 
-    // nível raiz: todas as pastas + vídeos solos
     return [
       ...Object.values(folders),
       ...solos,
@@ -181,7 +192,6 @@
   })
 
   const filteredItems = computed(() => {
-    // if (!search.value) return tableItems.value
     return tableItems.value.filter(item => {
       const txt = item.isFolder ? item.name : item.title
       return txt.toLowerCase().includes(search.value.toLowerCase())
@@ -190,30 +200,38 @@
 
   const breadcrumbs = computed(() => {
     const bc = [
-      {
-        text: 'Home',
-        clickable: currentFolder.value !== null,
-        onClick: () => (currentFolder.value = null),
-        icon: 'mdi-home', // ícone para o nível Home
-      },
+      { text: 'Home', icon: 'mdi-home', clickable: showVideo.value || (!selectedVideo.value && currentFolder.value), onClick: () => {
+        showVideo.value = false
+        selectedVideo.value = null
+        currentFolder.value = ''
+      } },
     ]
-
-    if (currentFolder.value) {
-      // supondo que você saiba o nome da pasta atual
+    if (!selectedVideo.value && currentFolder.value) {
       const folderName = tableItems.value.find(f => f.id === currentFolder.value)?.name
-      bc.push({
-        text: folderName || 'Pasta',
-        clickable: true,
-        onClick: () => {}, // se quiser navegar para um nível acima
-        icon: 'mdi-folder', // ícone para subpasta
-      })
+      bc.push({ text: 'Pasta', icon: 'mdi-folder', clickable: false, onClick: () => {
+        currentFolder.value = ''
+      } })
     }
-
+    if (selectedVideo.value !== null) {
+      console.log(selectedVideo.value)
+      bc.push({ text: selectedVideo.value.title, icon: 'mdi-play-circle', clickable: false })
+    }
     return bc
   })
 
   function enterFolder (folder) {
     currentFolder.value = folder.id
+  }
+
+  function handleRowClick ({ item }) {
+    if (item.isFolder) {
+      // só filtra a lista, sem mudar de rota
+      enterFolder(item)
+    } else {
+      console.log(item)
+      selectedVideo.value = item
+      showVideo.value = true
+    }
   }
 
   function formatSize (bytes) {
@@ -240,23 +258,9 @@
     })
   }
 
-  async function deleteSelected () {
-    // lógica de exclusão em lote
-    console.log('Excluir em lote:', selected.value)
-  }
-
-  function editItem (item) {
-    console.log('Editar item:', item)
-  }
-
-  function deleteItem (item) {
-    console.log('Excluir item:', item)
-  }
-
 </script>
 
 <style scoped>
-/* atinge apenas as <tr> do corpo da tabela (não cabeçalho) */
 ::v-deep .v-data-table__wrapper tbody tr {
   cursor: pointer;
 }
