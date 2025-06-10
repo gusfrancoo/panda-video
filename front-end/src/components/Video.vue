@@ -1,8 +1,13 @@
 <template>
-  <v-overlay :value="isLoading">
-    <v-progress-circular indeterminate size="64" />
-  </v-overlay>
-  <v-card class="mt-5">
+  <v-card class="mt-5" style="position: relative;">
+    <v-overlay
+      v-model="isLoading"
+      absolute
+      class="d-flex align-center justify-center"
+      opacity="0.7"
+    >
+      <v-progress-circular color="white" indeterminate size="64" />
+    </v-overlay>
     <v-card-text>
 
       <!-- Player e Título dividem a mesma linha -->
@@ -115,6 +120,7 @@
       </v-btn>
     </template>
   </v-snackbar>
+
 </template>
 
 <script setup>
@@ -137,12 +143,12 @@
   }
   function formatSize (bytes) {
     const n = Number(bytes)
-    if (Number.isNaN(n)) return '–'
     return `${(n / 1024 / 1024).toFixed(1)} MB`
   }
 
   async function updateVideos () {
     try {
+      isLoading.value = true
       const params = {
         title: video.value.title,
         description: video.value.description,
@@ -152,9 +158,13 @@
       const { data } = await update(video.value.id, {
         params: params,
       })
+      emit('save', data)
     } catch (error) {
+      isLoading.value = false
       errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao salvar os dados do video. Tente novamente.'
       showError.value = true
+    } finally {
+      isLoading.value = false
     }
   }
 </script>

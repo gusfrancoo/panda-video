@@ -85,20 +85,20 @@
       <Video
         :video="selectedVideo"
         @back="selectedVideo = null"
-        @save="onSaveVideo"
+        @save="onUpdateVideo"
       />
 
     </template>
 
     <v-snackbar
-      v-model="showError"
-      color="error"
+      v-model="showSnack"
+      :color="color"
       :timeout="4000"
       top
     >
-      {{ errorMessage }}
+      {{ snackMessage }}
       <template #actions>
-        <v-btn text @click="showError = false">
+        <v-btn text @click="showSnack = false">
           Fechar
         </v-btn>
       </template>
@@ -115,8 +115,9 @@
   import { formatDate } from '@/utils/utils'
 
   const router = useRouter()
-  const showError = ref(false)
-  const errorMessage = ref('')
+  const showSnack = ref(false)
+  const snackColor = ref('')
+  const snackMessage = ref('')
   const params = ref({})
   const videos = ref([])
   const currentFolder = ref('')
@@ -159,8 +160,9 @@
         router.replace('/login')
         return
       }
-      errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao buscar os videos. Tente novamente.'
-      showError.value = true
+      snackMessage.value = error.response?.data?.error || 'Ocorreu um erro ao buscar os videos. Tente novamente.'
+      snackColor.value = 'error'
+      showSnack.value = true
     }
   }
 
@@ -222,6 +224,18 @@
     }
     return bc
   })
+
+  function onUpdateVideo (updatedVideo) {
+    selectedVideo.value = updatedVideo
+
+    const idx = videos.value.findIndex(v => v.id === updatedVideo.id)
+    if (idx !== -1) videos.value.splice(idx, 1, updatedVideo)
+
+    snackMessage.value = 'Vídeo atualizado com sucesso!'
+    snackColor.value = 'green'
+    showSnack.value = true
+    console.log('aquii')
+  }
 
   function enterFolder (folder) {
     currentFolder.value = folder.id

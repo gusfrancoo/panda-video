@@ -17,6 +17,16 @@ async function fetchVideosFromSource(params) {
   return response.data
 }
 
+async function updateVideos(params, body) {
+  try {
+    const response = await externalApi.put(`/videos/${params}`, body)
+    return response.data
+  } catch (error) {
+    console.error('Erro ao atualizar video: ', error)
+    throw error
+  }
+}
+
 
 export async function getVideos(params) {
   const key = `videos:${JSON.stringify(params)}`
@@ -34,11 +44,10 @@ export async function getVideos(params) {
 
 
 export async function update(params, body) {
-  console.log(params)
-  console.log('body: ', body)
-  // const key = `videos:${videoId}`
-  // await redisClient.del(key)
-
-  // const resp = await external.put(`/videos/${videoId}`, data)
-  // return resp.data
+  const videoId = params;
+  const requestBody = body;
+  const key = `videos:${videoId}`
+  await redisClient.del(key)
+  const resp = await updateVideos(videoId, requestBody)
+  return resp.data
 }
