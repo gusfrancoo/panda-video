@@ -2,7 +2,7 @@
   <v-container class="h-100">
     <v-row class="pt-6">
       <v-breadcrumbs
-        class="mb-4 elevation-2 w-100 cursor-pointer py-3"
+        class="mb-5 elevation-2 w-100 cursor-pointer "
         divider="/"
         :items="breadcrumbs"
         rounded
@@ -27,7 +27,6 @@
             v-model="search"
             :clearable="true"
             density="comfortable"
-            fixed-header
             placeholder="Filtre por nome de pasta ou vídeo…"
             prepend-inner-icon="mdi-magnify"
             variant="solo"
@@ -49,15 +48,12 @@
           :row-props="rowProps"
           @click:row="(e, row) => handleRowClick(row)"
         >
-          <!-- <template #top>
-            <v-toolbar v-if="selected.length > 0" dense flat>
-              <v-toolbar-title>{{ selected.length }} selecionado(s)</v-toolbar-title>
-              <v-spacer />
-              <v-btn icon @click="deleteSelected">
-                <v-icon color="red">mdi-delete</v-icon>
-              </v-btn>
-            </v-toolbar>
-          </template> -->
+          <template #no-data>
+            <v-sheet class="pa-6 text-center">
+              <v-icon color="grey lighten-1" large>mdi-video-off</v-icon>
+              <p>Nenhum vídeo ou pasta para exibir.</p>
+            </v-sheet>
+          </template>
 
           <template #item.name="{ item }">
             <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;">
@@ -80,15 +76,6 @@
             {{ formatDate(item.created_at) }}
           </template>
 
-          <!-- <template #item.actions="{ item }">
-            <v-btn icon small variant="plain" @click="editItem(item)">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn icon small variant="plain" @click="deleteItem(item)">
-              <v-icon color="red">mdi-delete</v-icon>
-            </v-btn>
-          </template> -->
-
         </v-data-table>
 
       </v-row>
@@ -102,13 +89,30 @@
       />
 
     </template>
+
+    <v-snackbar
+      v-model="showError"
+      color="error"
+      :timeout="4000"
+      top
+    >
+      {{ errorMessage }}
+      <template #actions>
+        <v-btn text @click="showError = false">
+          Fechar
+        </v-btn>
+      </template>
+    </v-snackbar>
+
   </v-container>
+
 </template>
 
 <script setup>
   import { useRouter } from 'vue-router'
   import { getVideos } from '@/api/videos.api'
   import Video from '@/components/Video.vue'
+  import { formatDate } from '@/utils/utils'
 
   const router = useRouter()
   const showError = ref(false)
@@ -152,7 +156,7 @@
     } catch (error) {
       if (error.response?.status === 401) {
         localStorage.removeItem('token')
-        router.push({ name: 'Login' })
+        router.replace('/login')
         return
       }
       errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao buscar os videos. Tente novamente.'
@@ -225,10 +229,8 @@
 
   function handleRowClick ({ item }) {
     if (item.isFolder) {
-      // só filtra a lista, sem mudar de rota
       enterFolder(item)
     } else {
-      console.log(item)
       selectedVideo.value = item
       showVideo.value = true
     }
@@ -248,20 +250,4 @@
     return `${m}:${ss}`
   }
 
-  function formatDate (iso) {
-    const d = new Date(iso)
-    if (Number.isNaN(d.getTime())) return '–'
-    return d.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    })
-  }
-
 </script>
-
-<style scoped>
-::v-deep .v-data-table__wrapper tbody tr {
-  cursor: pointer;
-}
-</style>
