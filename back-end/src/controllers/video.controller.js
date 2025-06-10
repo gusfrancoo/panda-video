@@ -1,4 +1,4 @@
-import { getVideos } from '../services/video.service.js'
+import { getVideos, update } from '../services/video.service.js'
 
 export async function fetchVideos(req, res) {
   try {
@@ -11,5 +11,16 @@ export async function fetchVideos(req, res) {
     return res
       .status(500)
       .json({ error: 'Erro ao buscar vídeos. Tente novamente.' })
+  }
+}
+
+export async function updateVideos(req, res) {
+  const { videoId } = req.params
+  const { title, description, folder_id } = req.body.params
+  try {
+    const updated = await update(videoId, { title, description, folder_id })
+    res.json(updated)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
   }
 }

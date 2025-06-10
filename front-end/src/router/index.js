@@ -32,15 +32,9 @@ router.onError((err, to) => {
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  if (to.path === '/login' && token) {
-    return next('/home')
+  if (!token && to.meta.requiresAuth) {
+    return next('/unauthorized')
   }
-
-  if (to.path !== '/login' && !token) {
-    return next('/login')
-  }
-
-  // Permite o acesso caso contrário
   next()
 })
 

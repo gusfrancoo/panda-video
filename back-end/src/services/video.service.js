@@ -20,9 +20,9 @@ async function fetchVideosFromSource(params) {
 
 export async function getVideos(params) {
   const key = `videos:${JSON.stringify(params)}`
-
   const cached = await redisClient.get(key)
   if (cached) {
+    console.log('cached', cached);
     return JSON.parse(cached)
   }
   const videos = await fetchVideosFromSource(params)
@@ -30,4 +30,15 @@ export async function getVideos(params) {
   await redisClient.set(key, JSON.stringify(videos), 'EX', 20)
 
   return videos
+}
+
+
+export async function update(params, body) {
+  console.log(params)
+  console.log('body: ', body)
+  // const key = `videos:${videoId}`
+  // await redisClient.del(key)
+
+  // const resp = await external.put(`/videos/${videoId}`, data)
+  // return resp.data
 }
