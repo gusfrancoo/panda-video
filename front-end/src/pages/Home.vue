@@ -2,7 +2,7 @@
   <v-container class="h-100">
     <v-row class="pt-6">
       <v-breadcrumbs
-        class="mb-5 elevation-2 w-100 cursor-pointer "
+        class="mb-5 elevation-2 w-100 "
         divider="/"
         :items="breadcrumbs"
         rounded
@@ -10,6 +10,7 @@
       >
         <template #item="{ item }">
           <v-breadcrumbs-item
+            class="cursor-pointer"
             :disabled="!item.clickable"
             @click="() => item.onClick && item.onClick()"
           >
@@ -212,25 +213,23 @@
         currentFolder.value = ''
       } },
     ]
+
     if (!selectedVideo.value && currentFolder.value) {
       const folderName = tableItems.value.find(f => f.id === currentFolder.value)?.name
       bc.push({ text: 'Pasta', icon: 'mdi-folder', clickable: false, onClick: () => {
         currentFolder.value = ''
       } })
     }
+
     if (selectedVideo.value !== null) {
       console.log(selectedVideo.value)
       bc.push({ text: selectedVideo.value.title, icon: 'mdi-play-circle', clickable: false })
     }
+
     return bc
   })
 
-  async function onUpdateVideo (updatedVideo) {
-    // selectedVideo.value = updatedVideo
-
-    // const i = videos.value.findIndex(v => v.id === updatedVideo.videoId)
-    // videos.value[i].title = updatedVideo.params.title
-    // videos.value[i].description = updatedVideo.params.description
+  async function onUpdateVideo () {
     await fetchVideos()
     snackMessage.value = 'Vídeo atualizado com sucesso!'
     snackColor.value = 'green'

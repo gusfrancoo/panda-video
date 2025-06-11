@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mt-5" style="position: relative;">
+  <v-card class="mt-1 elevation-2 rounded" style="position: relative;">
     <v-overlay
       v-model="isLoading"
       absolute
@@ -12,9 +12,10 @@
 
       <v-row align="end" class=" items-center">
         <v-col cols="12" md="5">
-          <v-responsive v-if="!isVideoLoading" aspect-ratio="16/9">
+          <v-responsive v-if="!isVideoLoading" aspect-ratio="16/9" class="">
             <iframe
               allowfullscreen
+              class="elevation-2 rounded"
               frameborder="0"
               :src="video.video_player"
               style="width:100%; height:200px;"
@@ -31,24 +32,23 @@
         <v-col class="d-flex h-100 justify-end items-end">
           <v-text-field
             v-model="video.title"
-            class="w-100"
             dense
             label="Título"
             outlined
+            variant="solo-filled"
           />
         </v-col>
       </v-row>
 
-      <v-row class="mb-4">
+      <v-row class="py-3">
         <v-col cols="12">
           <v-textarea
             v-model="video.description"
-            class="w-100"
             dense
             label="Descrição"
             outlined
             rows="3"
-            variant="filled"
+            variant="solo-filled"
           />
         </v-col>
       </v-row>
@@ -56,7 +56,9 @@
       <v-row dense>
         <v-col
           class="pa-0 d-flex flex-column align-center"
-          cols="1"
+          cols="12"
+          md="3"
+          sm="6"
         >
           <div class="d-flex align-center">
             <v-icon class="mr-1" small>mdi-timer</v-icon>
@@ -67,7 +69,9 @@
 
         <v-col
           class="pa-0 d-flex flex-column align-center"
-          cols="2"
+          cols="12"
+          md="3"
+          sm="6"
         >
           <div class="d-flex align-center">
             <v-icon class="mr-1" small>mdi-database</v-icon>
@@ -78,7 +82,9 @@
 
         <v-col
           class="pa-0 d-flex flex-column align-center"
-          cols="2"
+          cols="12"
+          md="3"
+          sm="6"
         >
           <div class="d-flex align-center">
             <v-icon class="mr-1" small>mdi-calendar</v-icon>
@@ -89,7 +95,9 @@
 
         <v-col
           class="pa-0 d-flex flex-column align-center"
-          cols="2"
+          cols="12"
+          md="3"
+          sm="6"
         >
           <div class="d-flex align-center">
             <v-icon class="mr-1" small>mdi-calendar</v-icon>
@@ -101,9 +109,15 @@
 
     </v-card-text>
 
-    <v-card-actions>
+    <v-card-actions class="justify-end pa-4">
       <v-spacer />
-      <v-btn color="grey-darken-4" prepend-icon="mdi-content-save" variant="flat" @click="updateVideos">
+      <v-btn
+        color="grey-darken-4"
+        elevation="2"
+        prepend-icon="mdi-content-save"
+        variant="flat"
+        @click="updateVideos"
+      >
         Salvar
       </v-btn>
     </v-card-actions>

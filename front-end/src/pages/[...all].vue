@@ -5,7 +5,7 @@
         <v-icon color="grey-darken-2" size="64">mdi-alert-circle-outline</v-icon>
         <h2>Página não encontrada</h2>
       </v-col>
-      <v-btn color="primary" @click="$router.push('/home')">
+      <v-btn color="grey-darken-4" @click="$router.push('/home')">
         Voltar para Home
       </v-btn>
     </v-card>

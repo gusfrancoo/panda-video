@@ -1,5 +1,14 @@
 <template>
   <v-container class="fill-height">
+    <v-overlay
+      v-model="isLoading"
+      absolute
+      class="d-flex align-center justify-center"
+      opacity="0.7"
+    >
+      <v-progress-circular color="white" indeterminate size="64" />
+    </v-overlay>
+
     <v-row align="center" justify="center">
       <v-col cols="12" md="4" sm="8">
         <v-card class="elevation-3">
@@ -69,9 +78,11 @@
   const router = useRouter()
   const showError = ref(false)
   const errorMessage = ref('')
+  const isLoading = ref(false)
 
   async function onSubmit () {
     try {
+      isLoading.value = true
       const { data } = await login({
         email: email.value,
         password: password.value,
@@ -79,9 +90,11 @@
       localStorage.setItem('token', data.token)
       router.push('/home')
     } catch (error) {
-      console.log(error)
+      isLoading.value = false
       errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao fazer login. Tente novamente.'
       showError.value = true
+    } finally {
+      isLoading.value = false
     }
   }
 </script>
