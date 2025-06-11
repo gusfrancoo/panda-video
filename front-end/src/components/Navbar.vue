@@ -28,7 +28,6 @@
 
 <script setup>
   import { useRouter } from 'vue-router'
-  // import { logout } from '@/api/auth.api'
 
   const router = useRouter()
 

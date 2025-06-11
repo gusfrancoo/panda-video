@@ -10,21 +10,24 @@
     </v-overlay>
     <v-card-text>
 
-      <!-- Player e Título dividem a mesma linha -->
       <v-row align="end" class=" items-center">
-        <!-- Player ocupa metade -->
         <v-col cols="12" md="5">
-          <v-responsive aspect-ratio="16/9">
+          <v-responsive v-if="!isVideoLoading" aspect-ratio="16/9">
             <iframe
               allowfullscreen
               frameborder="0"
               :src="video.video_player"
               style="width:100%; height:200px;"
+              @load="onIframeLoad"
             />
           </v-responsive>
+          <div v-else>
+            <div class="d-flex justify-center py-2">
+              <v-progress-circular color="black" indeterminate size="64" />
+            </div>
+          </div>
         </v-col>
 
-        <!-- Título ocupa a outra metade -->
         <v-col class="d-flex h-100 justify-end items-end">
           <v-text-field
             v-model="video.title"
@@ -36,7 +39,6 @@
         </v-col>
       </v-row>
 
-      <!-- Descrição em linha única -->
       <v-row class="mb-4">
         <v-col cols="12">
           <v-textarea
@@ -125,7 +127,7 @@
 
 <script setup>
   import { update } from '@/api/videos.api'
-  import { formatDate } from '@/utils/utils'
+  import { formatDate, formatLength, formatSize } from '@/utils/utils'
 
   const props = defineProps({ video: Object })
   const emit = defineEmits(['save'])
@@ -133,19 +135,11 @@
   const video = ref({ ...props.video })
   const showError = ref(false)
   const errorMessage = ref('')
+  const isVideoLoading = ref(false)
 
-  function formatLength (sec) {
-    const s = Number(sec)
-    if (Number.isNaN(s)) return '–'
-    const m = String(Math.floor(s / 60)).padStart(2, '0')
-    const ss = String(Math.floor(s % 60)).padStart(2, '0')
-    return `${m}:${ss}`
+  function onIframeLoad () {
+    isVideoLoading.value = false
   }
-  function formatSize (bytes) {
-    const n = Number(bytes)
-    return `${(n / 1024 / 1024).toFixed(1)} MB`
-  }
-
   async function updateVideos () {
     try {
       isLoading.value = true
@@ -154,11 +148,11 @@
         description: video.value.description,
         folder_id: video.value.folder_id,
       }
-      console.log('update')
       const { data } = await update(video.value.id, {
         params: params,
       })
-      emit('save', data)
+
+      emit('save', { params: params, videoId: video.value.id })
     } catch (error) {
       isLoading.value = false
       errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao salvar os dados do video. Tente novamente.'

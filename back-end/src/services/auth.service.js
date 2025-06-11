@@ -12,11 +12,9 @@ export async function authenticateUser(email, password) {
     }
 
     const match = await bcrypt.compare(password, user.password_hash)
-    console.log('matchs: ', match);
     if (!match) {
       throw new Error('Senha inválida')
     }
-
     return jwt.sign(
       { id: user.id, email: user.email },
       jwtSecret,

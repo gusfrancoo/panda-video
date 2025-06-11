@@ -92,7 +92,7 @@
 
     <v-snackbar
       v-model="showSnack"
-      :color="color"
+      :color="snackColor"
       :timeout="4000"
       top
     >
@@ -112,7 +112,7 @@
   import { useRouter } from 'vue-router'
   import { getVideos } from '@/api/videos.api'
   import Video from '@/components/Video.vue'
-  import { formatDate } from '@/utils/utils'
+  import { formatDate, formatLength, formatSize } from '@/utils/utils'
 
   const router = useRouter()
   const showSnack = ref(false)
@@ -225,16 +225,16 @@
     return bc
   })
 
-  function onUpdateVideo (updatedVideo) {
-    selectedVideo.value = updatedVideo
+  async function onUpdateVideo (updatedVideo) {
+    // selectedVideo.value = updatedVideo
 
-    const idx = videos.value.findIndex(v => v.id === updatedVideo.id)
-    if (idx !== -1) videos.value.splice(idx, 1, updatedVideo)
-
+    // const i = videos.value.findIndex(v => v.id === updatedVideo.videoId)
+    // videos.value[i].title = updatedVideo.params.title
+    // videos.value[i].description = updatedVideo.params.description
+    await fetchVideos()
     snackMessage.value = 'Vídeo atualizado com sucesso!'
     snackColor.value = 'green'
     showSnack.value = true
-    console.log('aquii')
   }
 
   function enterFolder (folder) {
@@ -248,20 +248,6 @@
       selectedVideo.value = item
       showVideo.value = true
     }
-  }
-
-  function formatSize (bytes) {
-    const n = Number(bytes)
-    if (Number.isNaN(n)) return '–'
-    return `${(n / 1024 / 1024).toFixed(1)} MB`
-  }
-
-  function formatLength (sec) {
-    const s = Number(sec)
-    if (Number.isNaN(s)) return '–'
-    const m = Math.floor(s / 60).toString().padStart(2, '0')
-    const ss = Math.floor(s % 60).toString().padStart(2, '0')
-    return `${m}:${ss}`
   }
 
 </script>

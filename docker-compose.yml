@@ -28,11 +28,9 @@ services:
     container_name: pandavideo-backend
     restart: unless-stopped
     working_dir: /usr/src/app
-    # Monta o código e preserva node_modules no container
     volumes:
       - ./back-end:/usr/src/app
       - /usr/src/app/node_modules
-    # Usa o Nodemon para hot-reload
     command: ["npm", "run", "dev"]
     ports:
       - "3000:3000"
@@ -56,7 +54,6 @@ services:
     volumes:
       - ./front-end:/usr/src/app
       - /usr/src/app/node_modules
-    # Usa Vite em modo dev com hot-reload
     command: ["npm", "run", "dev"]
     ports:
       - "5173:5173"
