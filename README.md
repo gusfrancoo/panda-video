@@ -1,35 +1,54 @@
 # Panda Video
 
-Este repositório contém o front‑end, back‑end, banco de dados e cache (Redis) da aplicação de gerenciamento de vídeos "Panda Video".
+Este repositório contém o front‑end, back‑end, banco de dados e cache (Redis) da aplicação de gerenciamento de vídeos **Panda Video**.
+
+---
+
+## Pré-requisitos
+
+Antes de iniciar, copie os arquivos de exemplo de ambiente para criar os `.env`:
+
+- No diretório `back-end`:
+  ```bash
+  cp .env.example .env
+  ```
+- No diretório `front-end`:
+  ```bash
+  cp .env.example .env
+  ```
+
+Configure as variáveis conforme seu ambiente (ex.: URLs, chaves, segredos).
 
 ---
 
 ## Execução do Projeto
 
-Antes de qualquer coisa, certifique-se da criação dos arquivos .env de cada parte do projeto (front-end e back-end). Para isso, deixei os arquivos de exemplo no projeto, bastando copiar e colar para o arquivo real.
-
-Para subir todos os serviços (Postgres, Redis, back‑end e front‑end), execute:
+Para subir todos os serviços (Postgres, Redis, back‑end e front‑end), execute na raiz:
 
 ```bash
 docker compose up --build
 ```
 
-Em instâncias futuras, apenas:
+Nas próximas vezes, apenas:
 
 ```bash
 docker compose up
 ```
 
-A aplicação ficará disponível em `http://localhost:3000` (back‑end) e `http://localhost:5173` (front‑end) por padrão.
+A aplicação ficará disponível em:
+
+- **Back‑end**: `http://localhost:3000`
+- **Front‑end**: `http://localhost:5173`
 
 ---
 
-## Login
+## Login Padrão
 
-Para fazer o login na aplicação, deixei um usuário pré estabelecido na criação do banco. Ao rodar o comando docker, já será executado o script do banco com a inserção do usuário:
-admin@teste.com
-Senha: 123456
+Um usuário de exemplo é inserido automaticamente no banco:
 
----
+- **E-mail**: `admin@teste.com`
+- **Senha**: `123456`
+
+Use essas credenciais para acessar a aplicação.
 
 
