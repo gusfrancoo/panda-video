@@ -29,7 +29,6 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./back-end:/usr/src/app
-      - /usr/src/app/node_modules
     command: ["npm", "run", "dev"]
     ports:
       - "3000:3000"
