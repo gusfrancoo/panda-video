@@ -25,6 +25,7 @@
                 label="E-mail"
                 prepend-inner-icon="mdi-email"
                 required
+                type="email"
                 variant="outlined"
               />
               <v-text-field
@@ -39,6 +40,7 @@
                 block
                 class="mt-4"
                 color="primary"
+                :disabled="isLoading"
                 prepend-icon="mdi-login"
                 type="submit"
               >

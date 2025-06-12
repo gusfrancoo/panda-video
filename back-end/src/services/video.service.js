@@ -11,7 +11,7 @@ const externalApi = axios.create({
   }
 })
 
-
+//Acessa endpoints externos
 async function fetchVideosFromSource(params) {
   const response = await externalApi.get('/videos', { params })
   return response.data
@@ -27,7 +27,7 @@ async function updateVideos(params, body) {
   }
 }
 
-
+//Lógica para acessar endpoints externos
 export async function getVideos(params) {
   const key = `videos`
   const cached = await redisClient.get(key)
@@ -40,7 +40,6 @@ export async function getVideos(params) {
 
   return videos
 }
-
 
 export async function update(params, body) {
   const videoId = params;

@@ -9,6 +9,7 @@
             class="mx-2"
             text
             to="/home"
+            @click="reload"
           >
             Home
           </v-tab>
@@ -30,6 +31,12 @@
   import { useRouter } from 'vue-router'
 
   const router = useRouter()
+
+  async function reload () {
+    router.replace('/home').then(() => {
+      window.location.reload()
+    })
+  }
 
   async function onLogout () {
     localStorage.removeItem('token')

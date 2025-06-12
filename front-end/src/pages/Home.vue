@@ -21,7 +21,7 @@
       </v-breadcrumbs>
 
     </v-row>
-    <templte v-if="!showVideo" class="">
+    <template v-if="!showVideo">
       <v-row align="center" class="px-2  d-flex justify-left">
         <v-col cols="12" lg="4" md="6">
           <v-text-field
@@ -74,14 +74,15 @@
             {{ formatLength(item.length) }}
           </template>
           <template #item.created_at="{ item }">
-            {{ formatDate(item.created_at) }}
+            {{ formatDate(item.updated_at) }}
           </template>
 
         </v-data-table>
 
       </v-row>
 
-    </templte>
+    </template>
+
     <template v-else>
       <Video
         :video="selectedVideo"
@@ -132,7 +133,6 @@
     { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right' },
     { title: 'Duração', key: 'length', sortable: true, align: 'right' },
     { title: 'Modificação', key: 'created_at', sortable: true },
-    // { title: 'Ações', key: 'actions', sortable: false, align: 'center' },
   ]
 
   onMounted (async () => {
@@ -215,14 +215,12 @@
     ]
 
     if (!selectedVideo.value && currentFolder.value) {
-      const folderName = tableItems.value.find(f => f.id === currentFolder.value)?.name
       bc.push({ text: 'Pasta', icon: 'mdi-folder', clickable: false, onClick: () => {
         currentFolder.value = ''
       } })
     }
 
     if (selectedVideo.value !== null) {
-      console.log(selectedVideo.value)
       bc.push({ text: selectedVideo.value.title, icon: 'mdi-play-circle', clickable: false })
     }
 

@@ -154,6 +154,7 @@
   function onIframeLoad () {
     isVideoLoading.value = false
   }
+
   async function updateVideos () {
     try {
       isLoading.value = true
@@ -162,7 +163,8 @@
         description: video.value.description,
         folder_id: video.value.folder_id,
       }
-      const { data } = await update(video.value.id, {
+
+      await update(video.value.id, {
         params: params,
       })
 
