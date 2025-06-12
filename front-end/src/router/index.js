@@ -31,6 +31,10 @@ router.onError((err, to) => {
 })
 
 router.beforeEach((to, from, next) => {
+  if (to.path === '/') {
+    return next('/login')
+  }
+
   const token = localStorage.getItem('token')
 
   const publicPages = ['/login', '/unauthorized']
