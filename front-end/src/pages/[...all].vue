@@ -1,5 +1,5 @@
 <template>
-  <v-main class="fill-height d-flex align-center justify-center" style="background: linear-gradient(135deg, #ece9e6 0%, #ffffff 100%)">
+  <v-main class="fill-height d-flex align-center justify-center">
     <v-card class="elevation-12" outlined>
       <v-card-title class="headline text-center pt-6">
         <v-row class="d-flex flex-column align-center">

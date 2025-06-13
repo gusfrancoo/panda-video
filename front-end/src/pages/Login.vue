@@ -11,7 +11,7 @@
 
     <v-row align="center" justify="center">
       <v-col cols="12" md="4" sm="8">
-        <v-card class="elevation-3">
+        <v-card class="elevation-2 rounded">
           <v-card-title class="justify-center d-flex text-center pa-10">
             <span class="text-h5 text-grey-darken-2">Entrar</span>
           </v-card-title>
@@ -37,11 +37,11 @@
                 variant="outlined"
               />
               <v-btn
+                append-icon="mdi-login"
                 block
                 class="mt-4"
                 color="primary"
                 :disabled="isLoading"
-                prepend-icon="mdi-login"
                 type="submit"
               >
                 Login

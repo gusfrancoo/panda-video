@@ -11,22 +11,14 @@
     <v-card-text>
 
       <v-row align="end" class=" items-center">
-        <v-col cols="12" md="5">
-          <v-responsive v-if="!isVideoLoading" aspect-ratio="16/9" class="">
+        <v-col cols="12" md="4">
+          <v-responsive aspect-ratio="16/9" class="elevation-2 rounded absolute">
             <iframe
-              allowfullscreen
-              class="elevation-2 rounded"
               frameborder="0"
               :src="video.video_player"
-              style="width:100%; height:200px;"
-              @load="onIframeLoad"
+              style="width: 100%; height: 100%;"
             />
           </v-responsive>
-          <div v-else>
-            <div class="d-flex justify-center py-2">
-              <v-progress-circular color="black" indeterminate size="64" />
-            </div>
-          </div>
         </v-col>
 
         <v-col class="d-flex h-100 justify-end items-end">
@@ -126,7 +118,7 @@
   <v-snackbar
     v-model="showError"
     color="error"
-    :timeout="4000"
+    :timeout="2000"
     top
   >
     {{ errorMessage }}
@@ -149,11 +141,6 @@
   const video = ref({ ...props.video })
   const showError = ref(false)
   const errorMessage = ref('')
-  const isVideoLoading = ref(false)
-
-  function onIframeLoad () {
-    isVideoLoading.value = false
-  }
 
   async function updateVideos () {
     try {
@@ -178,3 +165,6 @@
     }
   }
 </script>
+<style scoped>
+
+</style>

@@ -38,7 +38,7 @@
       <v-row class="px-5">
         <v-data-table
           v-model="selected"
-          class="elevation-2 rounded"
+          class="elevation-3 rounded"
           dense
           density="comfortable"
           :headers="columns"
