@@ -17,8 +17,6 @@ Antes de iniciar, copie os arquivos de exemplo de ambiente para criar os `.env`:
   cp .env.example .env
   ```
 
-Configure as variáveis conforme seu ambiente (ex.: URLs, chaves, segredos).
-
 ---
 
 ## Execução do Projeto
