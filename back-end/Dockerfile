@@ -9,5 +9,4 @@ COPY . .
 
 EXPOSE 3000
 
-# Comando padrão (modo dev com nodemon, ou use npm start em prod)
 CMD ["npm", "run", "dev"]
