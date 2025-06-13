@@ -1,6 +1,6 @@
 # Panda Video
 
-Este repositório contém o front‑end, back‑end, banco de dados e cache (Redis) da aplicação de gerenciamento de vídeos **Panda Video**.
+Este repositório contém o front‑end, back‑end, banco de dados da aplicação de gerenciamento de vídeos **Panda Video**.
 
 ---
 
