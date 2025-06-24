@@ -1,12 +1,13 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { jwtSecret } from '../config/index.js'
-import { findByEmail } from '../models/user.model.js'
+import prisma from '../lib/prisma.js'
+
 
 export async function authenticateUser(email, password) {
   try {
 
-    const user = await findByEmail(email)
+    const user = await prisma.users.findUnique({ where: { email } })
     if (!user) {
       throw new Error('Usuário não encontrado')
     }
@@ -16,7 +17,7 @@ export async function authenticateUser(email, password) {
       throw new Error('Senha inválida')
     }
     return jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id.toString(), email: user.email },
       jwtSecret,
       { expiresIn: '1h' }
     )
