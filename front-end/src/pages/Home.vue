@@ -37,7 +37,7 @@
       </v-row>
       <v-row class="px-5">
         <v-data-table
-          v-model="selected"
+          v-model="selectedVideo"
           class="elevation-3 rounded"
           dense
           density="comfortable"
@@ -45,9 +45,13 @@
           :hover="true"
           item-key="id"
           :items="filteredItems"
+          :items-length="filteredItems.length"
+          :items-per-page="itemsPerPage"
           :loading="isLoading"
+          :page="page"
           :row-props="rowProps"
           @click:row="(e, row) => handleRowClick(row)"
+          @update:page="val => page = val"
         >
           <template #no-data>
             <v-sheet class="pa-6 text-center">
@@ -112,6 +116,7 @@
 
 <script setup>
   import { useRouter } from 'vue-router'
+  import { getFolders } from '@/api/folders.api'
   import { getVideos } from '@/api/videos.api'
   import Video from '@/components/Video.vue'
   import { formatDate, formatLength, formatSize } from '@/utils/utils'
@@ -120,13 +125,20 @@
   const showSnack = ref(false)
   const snackColor = ref('')
   const snackMessage = ref('')
-  const params = ref({})
   const videos = ref([])
   const currentFolder = ref('')
   const search = ref('')
   const isLoading = ref(false)
   const selectedVideo = ref(null)
   const showVideo = ref(false)
+  const folders = ref([])
+  const folderHistory = ref([])
+
+  const cacheFolder = new Map()
+  const cacheData = new Map()
+
+  const page = ref(1)
+  const itemsPerPage = ref(5)
 
   const columns = [
     { title: 'Nome', key: 'name', sortable: true },
@@ -137,6 +149,7 @@
 
   onMounted (async () => {
     isLoading.value = true
+    await fetchFolders()
     await fetchVideos()
     isLoading.value = false
   })
@@ -149,53 +162,87 @@
     }
   }
 
-  async function fetchVideos () {
-    try {
-      const { data } = await getVideos({
-        params: params.value,
-      })
-      videos.value = data.videos
-    } catch (error) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('token')
-        router.replace('/login')
-        return
+  async function fetchVideos (folderId = null) {
+    isLoading.value = true
+
+    if (cacheData.has(folderId)) {
+      videos.value = cacheData.get(folderId)
+    } else {
+      try {
+        const { data } = await getVideos(folderId ? { folder_id: folderId } : {})
+        const fetchedVideos = data.videos || []
+        videos.value = fetchedVideos
+        cacheData.set(folderId, fetchedVideos)
+      } catch (error) {
+        snackMessage.value = error.response?.data?.error || 'Erro ao buscar vídeos.'
+        snackColor.value = 'error'
+        showSnack.value = true
       }
-      snackMessage.value = error.response?.data?.error || 'Ocorreu um erro ao buscar os videos. Tente novamente.'
-      snackColor.value = 'error'
-      showSnack.value = true
     }
+
+    isLoading.value = false
+  }
+
+  async function fetchFolders (parentFolderId = null) {
+    isLoading.value = true
+
+    if (cacheFolder.has(parentFolderId)) {
+      folders.value = cacheFolder.get(parentFolderId)
+    } else {
+      try {
+        const { data } = await getFolders(parentFolderId ? { parent_folder_id: parentFolderId } : {})
+        const fetchedFolders = data.folders || []
+        folders.value = fetchedFolders
+        cacheFolder.set(parentFolderId, fetchedFolders)
+      } catch (error) {
+        snackMessage.value = error.response?.data?.error || 'Erro ao buscar pastas.'
+        snackColor.value = 'error'
+        showSnack.value = true
+      }
+    }
+
+    if (parentFolderId === null) {
+      folderHistory.value = []
+    } else {
+      const exists = folderHistory.value.find(f => f.id === parentFolderId)
+      if (!exists) {
+        let folderData = folders.value.find(f => f.id === parentFolderId)
+
+        if (!folderData) {
+          for (const folderList of cacheFolder.values()) {
+            folderData = folderList.find(f => f.id === parentFolderId)
+            if (folderData) break
+          }
+        }
+
+        folderHistory.value.push({
+          id: parentFolderId,
+          name: folderData?.name || `Pasta ${parentFolderId}`,
+        })
+      }
+    }
+
+    currentFolder.value = parentFolderId
+    isLoading.value = false
   }
 
   const tableItems = computed(() => {
-    const folders = {}
-    const solos = []
-    for (const v of videos.value) {
-      if (v.folder_id) {
-        if (!folders[v.folder_id]) {
-          folders[v.folder_id] = {
-            id: v.folder_id,
-            name: `Pasta ${v.folder_id}`,
-            isFolder: true,
-            count: 0,
-          }
-        }
-        folders[v.folder_id].count++
-      } else {
-        solos.push({ ...v, isFolder: false })
-      }
+    const items = []
+
+    for (const folder of folders.value) {
+      items.push({
+        ...folder,
+        isFolder: true,
+        name: folder.name,
+        count: folder.videos_count,
+      })
     }
 
-    if (currentFolder.value) {
-      return videos.value
-        .filter(v => v.folder_id === currentFolder.value)
-        .map(v => ({ ...v, isFolder: false }))
-    }
+    const filteredVideos = videos.value.filter(v =>
+      !currentFolder.value || v.folder_id === currentFolder.value,
+    ).map(v => ({ ...v, isFolder: false }))
 
-    return [
-      ...Object.values(folders),
-      ...solos,
-    ]
+    return [...items, ...filteredVideos]
   })
 
   const filteredItems = computed(() => {
@@ -205,27 +252,26 @@
     })
   })
 
-  const breadcrumbs = computed(() => {
-    const bc = [
-      { text: 'Home', icon: 'mdi-home', clickable: showVideo.value || (!selectedVideo.value && currentFolder.value), onClick: () => {
-        showVideo.value = false
-        selectedVideo.value = null
-        currentFolder.value = ''
-      } },
-    ]
-
-    if (!selectedVideo.value && currentFolder.value) {
-      bc.push({ text: 'Pasta', icon: 'mdi-folder', clickable: false, onClick: () => {
-        currentFolder.value = ''
-      } })
-    }
-
-    if (selectedVideo.value !== null) {
-      bc.push({ text: selectedVideo.value.title, icon: 'mdi-play-circle', clickable: false })
-    }
-
-    return bc
-  })
+  const breadcrumbs = computed(() => [
+    {
+      text: 'Home',
+      icon: 'mdi-home',
+      clickable: folderHistory.value.length > 0,
+      onClick: () => fetchFolders(),
+    },
+    ...folderHistory.value.map((folder, index) => ({
+      text: folder.name,
+      icon: 'mdi-folder',
+      clickable: index !== folderHistory.value.length - 1, // só o último desativa
+      onClick: () => {
+        // Volta até aquele ponto do histórico
+        const subPath = folderHistory.value.slice(0, index + 1)
+        folderHistory.value = subPath
+        fetchFolders(folder.id)
+        fetchVideos(folder.id)
+      },
+    })),
+  ])
 
   async function onUpdateVideo () {
     await fetchVideos()
@@ -234,17 +280,23 @@
     showSnack.value = true
   }
 
-  function enterFolder (folder) {
-    currentFolder.value = folder.id
-  }
-
-  function handleRowClick ({ item }) {
+  async function handleRowClick ({ item }) {
     if (item.isFolder) {
-      enterFolder(item)
+      await fetchFolders(item.id)
+      await fetchVideos(item.id)
     } else {
       selectedVideo.value = item
       showVideo.value = true
     }
   }
+
+  // function handleRowClick ({ item }) {
+  //   if (item.isFolder) {
+  //     enterFolder(item)
+  //   } else {
+  //     selectedVideo.value = item
+  //     showVideo.value = true
+  //   }
+  // }
 
 </script>

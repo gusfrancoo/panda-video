@@ -1,72 +1,57 @@
 <template>
   <v-container class="fill-height">
-    <v-overlay
-      v-model="isLoading"
-      absolute
-      class="d-flex align-center justify-center"
-      opacity="0.7"
-    >
-      <v-progress-circular color="white" indeterminate size="64" />
-    </v-overlay>
 
     <v-row align="center" justify="center">
       <v-col cols="12" md="4" sm="8">
-        <v-card class="elevation-2 rounded">
-          <v-card-title class="justify-center d-flex text-center pa-10">
-            <span class="text-h5 text-grey-darken-2">Entrar</span>
+        <v-card
+          class="elevation-6 rounded-lg py-10 px-6 bg-white mx-auto"
+          max-width="400"
+        >
+          <v-card-title class="justify-center d-flex text-center mb-6">
+            <span class="text-h4 text-grey-darken-2">Entrar</span>
           </v-card-title>
 
           <v-card-text>
-            <v-form @submit.prevent="onSubmit">
+            <v-form ref="formRef" v-model="formIsValid" @submit.prevent="onSubmit">
               <v-text-field
                 v-model="email"
-                color="grey lighten-2"
-                density="comfortable"
+                density="compact"
                 label="E-mail"
                 prepend-inner-icon="mdi-email"
-                required
+                :rules="[rules.required, rules.email]"
                 type="email"
                 variant="outlined"
               />
               <v-text-field
                 v-model="password"
+                density="compact"
                 label="Senha"
                 prepend-inner-icon="mdi-lock"
-                required
+                :rules="[rules.required, rules.minPassword]"
                 type="password"
                 variant="outlined"
               />
+
               <v-btn
                 append-icon="mdi-login"
                 block
                 class="mt-4"
                 color="primary"
-                :disabled="isLoading"
+                :disabled="!formIsValid || isLoading"
+                :loading="isLoading"
                 type="submit"
               >
                 Login
               </v-btn>
 
+              <div v-if="showError" class="text-error text-sm mt-3 text-center">
+                {{ errorMessage }}
+              </div>
             </v-form>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
-
-    <v-snackbar
-      v-model="showError"
-      color="error"
-      :timeout="4000"
-      top
-    >
-      {{ errorMessage }}
-      <template #actions>
-        <v-btn text @click="showError = false">
-          Fechar
-        </v-btn>
-      </template>
-    </v-snackbar>
-
   </v-container>
 </template>
 
@@ -77,14 +62,27 @@
 
   const email = ref('')
   const password = ref('')
-  const router = useRouter()
   const showError = ref(false)
   const errorMessage = ref('')
   const isLoading = ref(false)
+  const formRef = ref(null)
+  const formIsValid = ref(false)
+  const router = useRouter()
+
+  const rules = {
+    required: v => !!v || 'Campo obrigatório',
+    email: v => /.+@.+\..+/.test(v) || 'E-mail inválido',
+    minPassword: v => (v && v.length >= 6) || 'Mínimo 6 caracteres',
+  }
 
   async function onSubmit () {
+    const { valid } = await formRef.value.validate()
+    if (!valid) return
+
+    isLoading.value = true
+    showError.value = false
+
     try {
-      isLoading.value = true
       const { data } = await login({
         email: email.value,
         password: password.value,
@@ -92,8 +90,8 @@
       localStorage.setItem('token', data.token)
       router.push('/home')
     } catch (error) {
-      isLoading.value = false
-      errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao fazer login. Tente novamente.'
+      errorMessage.value
+        = error.response?.data?.error || 'Erro ao fazer login. Tente novamente.'
       showError.value = true
     } finally {
       isLoading.value = false
