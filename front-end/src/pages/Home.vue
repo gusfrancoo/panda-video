@@ -1,8 +1,9 @@
 <template>
-  <v-container class="h-100">
-    <v-row class="pt-6">
+
+  <v-row class="d-flex align-center bg-white elevation-3" style="max-height: 80px;">
+    <v-container>
       <v-breadcrumbs
-        class="mb-5 elevation-2 w-100 "
+        class="mb-5 w-100 "
         divider="/"
         :items="breadcrumbs"
         rounded
@@ -10,19 +11,22 @@
       >
         <template #item="{ item }">
           <v-breadcrumbs-item
-            class="cursor-pointer"
+            class="cursor-pointer text-h6 font-bold"
             :disabled="!item.clickable"
             @click="() => item.onClick && item.onClick()"
           >
-            <v-icon class="mr-1" small>{{ item.icon }}</v-icon>
+            <v-icon class=" text-h6" small>{{ item.icon }}</v-icon>
             {{ item.text }}
           </v-breadcrumbs-item>
         </template>
       </v-breadcrumbs>
+    </v-container>
 
-    </v-row>
-    <template v-if="!showVideo">
-      <v-row align="center" class="px-2  d-flex justify-left">
+  </v-row>
+
+  <v-container class="mt-4">
+    <v-card v-if="!showVideo" class="pa-10 rounded-lg" elevation="4">
+      <v-row align="center" class="px-2 d-flex justify-end">
         <v-col cols="12" lg="4" md="6">
           <v-text-field
             v-model="search"
@@ -38,7 +42,7 @@
       <v-row class="px-5">
         <v-data-table
           v-model="selectedVideo"
-          class="elevation-3 rounded"
+          class="rounded"
           dense
           density="comfortable"
           :headers="columns"
@@ -85,7 +89,7 @@
 
       </v-row>
 
-    </template>
+    </v-card>
 
     <template v-else>
       <Video
@@ -95,22 +99,21 @@
       />
 
     </template>
-
-    <v-snackbar
-      v-model="showSnack"
-      :color="snackColor"
-      :timeout="4000"
-      top
-    >
-      {{ snackMessage }}
-      <template #actions>
-        <v-btn text @click="showSnack = false">
-          Fechar
-        </v-btn>
-      </template>
-    </v-snackbar>
-
   </v-container>
+
+  <v-snackbar
+    v-model="showSnack"
+    :color="snackColor"
+    :timeout="4000"
+    top
+  >
+    {{ snackMessage }}
+    <template #actions>
+      <v-btn text @click="showSnack = false">
+        Fechar
+      </v-btn>
+    </template>
+  </v-snackbar>
 
 </template>
 
@@ -146,6 +149,53 @@
     { title: 'Duração', key: 'length', sortable: true, align: 'right' },
     { title: 'Modificação', key: 'created_at', sortable: true },
   ]
+
+  const tableItems = computed(() => {
+    const items = []
+
+    for (const folder of folders.value) {
+      items.push({
+        ...folder,
+        isFolder: true,
+        name: folder.name,
+        count: folder.videos_count,
+      })
+    }
+
+    const filteredVideos = videos.value.filter(v =>
+      !currentFolder.value || v.folder_id === currentFolder.value,
+    ).map(v => ({ ...v, isFolder: false }))
+
+    return [...items, ...filteredVideos]
+  })
+
+  const filteredItems = computed(() => {
+    return tableItems.value.filter(item => {
+      const txt = item.isFolder ? item.name : item.title
+      return txt.toLowerCase().includes(search.value.toLowerCase())
+    })
+  })
+
+  const breadcrumbs = computed(() => [
+    {
+      text: 'Home',
+      icon: 'mdi-home',
+      clickable: folderHistory.value.length > 0,
+      onClick: () => fetchFolders(),
+    },
+    ...folderHistory.value.map((folder, index) => ({
+      text: folder.name,
+      icon: 'mdi-folder',
+      clickable: index !== folderHistory.value.length - 1, // só o último desativa
+      onClick: () => {
+        // Volta até aquele ponto do histórico
+        const subPath = folderHistory.value.slice(0, index + 1)
+        folderHistory.value = subPath
+        fetchFolders(folder.id)
+        fetchVideos(folder.id)
+      },
+    })),
+  ])
 
   onMounted (async () => {
     isLoading.value = true
@@ -225,53 +275,6 @@
     currentFolder.value = parentFolderId
     isLoading.value = false
   }
-
-  const tableItems = computed(() => {
-    const items = []
-
-    for (const folder of folders.value) {
-      items.push({
-        ...folder,
-        isFolder: true,
-        name: folder.name,
-        count: folder.videos_count,
-      })
-    }
-
-    const filteredVideos = videos.value.filter(v =>
-      !currentFolder.value || v.folder_id === currentFolder.value,
-    ).map(v => ({ ...v, isFolder: false }))
-
-    return [...items, ...filteredVideos]
-  })
-
-  const filteredItems = computed(() => {
-    return tableItems.value.filter(item => {
-      const txt = item.isFolder ? item.name : item.title
-      return txt.toLowerCase().includes(search.value.toLowerCase())
-    })
-  })
-
-  const breadcrumbs = computed(() => [
-    {
-      text: 'Home',
-      icon: 'mdi-home',
-      clickable: folderHistory.value.length > 0,
-      onClick: () => fetchFolders(),
-    },
-    ...folderHistory.value.map((folder, index) => ({
-      text: folder.name,
-      icon: 'mdi-folder',
-      clickable: index !== folderHistory.value.length - 1, // só o último desativa
-      onClick: () => {
-        // Volta até aquele ponto do histórico
-        const subPath = folderHistory.value.slice(0, index + 1)
-        folderHistory.value = subPath
-        fetchFolders(folder.id)
-        fetchVideos(folder.id)
-      },
-    })),
-  ])
 
   async function onUpdateVideo () {
     await fetchVideos()

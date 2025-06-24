@@ -1,9 +1,9 @@
 <template>
-  <v-app-bar app color="grey-darken-4" dark>
+  <v-app-bar app color="grey-darken-4" elevation="0">
     <v-container>
-      <v-row class="d-flex align-center">
+      <v-row class="d-flex flex-wrap align-center justify-space-between">
         <v-toolbar-title>Panda Video</v-toolbar-title>
-        <v-spacer />
+
         <v-tabs>
           <v-tab
             class="mx-2"
@@ -19,7 +19,7 @@
             @click="onLogout"
           >
             Logout
-            <v-icon class="px-5" right>mdi-logout</v-icon>
+            <v-icon class="ms-1" right>mdi-logout</v-icon>
           </v-tab>
         </v-tabs>
       </v-row>

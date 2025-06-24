@@ -24,6 +24,7 @@
               />
               <v-text-field
                 v-model="password"
+                class="mt-4"
                 density="compact"
                 label="Senha"
                 prepend-inner-icon="mdi-lock"
