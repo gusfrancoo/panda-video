@@ -1,7 +1,7 @@
 import { api } from './api'
 
 export async function getVideos (params) {
-  return api.post('/videos', params)
+  return api.get('/videos', params)
 }
 
 export async function update (videoId, params) {

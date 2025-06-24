@@ -2,8 +2,7 @@ import { getVideos, update } from '../services/video.service.js'
 
 export async function fetchVideos(req, res) {
   try {
-    const params = req.body.params ?? req.body
-    const videos = await getVideos(params)
+    const videos = await getVideos()
     return res.status(200).json(videos)
     
   } catch (err) {

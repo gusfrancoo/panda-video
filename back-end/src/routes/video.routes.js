@@ -7,7 +7,7 @@ const router = Router()
 
 router.use(authMiddleware)
 
-router.post('/', fetchVideos)
+router.get('/', fetchVideos)
 
 router.put('/:videoId', updateVideos)
 
