@@ -6,7 +6,6 @@
         class="mb-5 w-100 "
         divider="/"
         :items="breadcrumbs"
-        rounded
         style="user-select: none; background-color: white;"
       >
         <template #item="{ item }">
@@ -67,7 +66,7 @@
           <template #item.name="{ item }">
             <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;">
               <v-icon class="mr-1 " small>mdi-folder</v-icon>
-              <span class=" text-truncate text-no-wrap">{{ item.name }}</span>({{ item.count }})
+              <span class=" text-truncate text-no-wrap mr-1">{{ item.name }}</span>({{ item.count }})
             </div>
             <div v-else>
               <v-icon class="mr-1" small>mdi-video</v-icon>
@@ -237,12 +236,17 @@
     isLoading.value = true
 
     if (cacheFolder.has(parentFolderId)) {
-      folders.value = cacheFolder.get(parentFolderId)
+      const cached = cacheFolder.get(parentFolderId)
+      folders.value = parentFolderId === null
+        ? cached.filter(folder => folder.parent_folder_id === null)
+        : cached
     } else {
       try {
         const { data } = await getFolders(parentFolderId ? { parent_folder_id: parentFolderId } : {})
         const fetchedFolders = data.folders || []
-        folders.value = fetchedFolders
+        folders.value = parentFolderId === null
+          ? fetchedFolders.filter(folder => folder.parent_folder_id === null)
+          : fetchedFolders
         cacheFolder.set(parentFolderId, fetchedFolders)
       } catch (error) {
         snackMessage.value = error.response?.data?.error || 'Erro ao buscar pastas.'
