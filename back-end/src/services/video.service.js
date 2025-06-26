@@ -12,9 +12,19 @@ const externalApi = axios.create({
 })
 
 //Acessa endpoints externos
-async function fetchVideosFromSource(params) {
-  const response = await externalApi.get('/videos', { params })
+async function fetchVideos(params) {
+  const response = await externalApi.get('/videos')
   return response.data
+}
+
+async function fetchVideosById(params) {
+  try {
+    const response = await externalApi.get(`/videos/${params}`)
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar video: ', error)
+    throw error
+  }
 }
 
 async function updateVideos(params, body) {
@@ -34,11 +44,25 @@ export async function getVideos(params) {
   if (cached) {
     return JSON.parse(cached)
   }
-  const videos = await fetchVideosFromSource(params)
+  const videos = await fetchVideos(params)
 
   await redisClient.set(key, JSON.stringify(videos), 'EX', 20)
 
   return videos
+}
+
+export async function getVideoById(params) {
+  const key = `video_${params}`
+  console.log(key);
+  const cached = await redisClient.get(key)
+  if (cached) {
+    return JSON.parse(cached)
+  }
+  const video = await fetchVideosById(params)
+  // console.log(video)
+  await redisClient.set(key, JSON.stringify(video), 'EX', 20)
+
+  return video
 }
 
 export async function update(params, body) {

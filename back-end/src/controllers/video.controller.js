@@ -1,4 +1,4 @@
-import { getVideos, update } from '../services/video.service.js'
+import { getVideos, update, getVideoById } from '../services/video.service.js'
 
 export async function fetchVideos(req, res) {
   try {
@@ -10,6 +10,21 @@ export async function fetchVideos(req, res) {
     return res
       .status(500)
       .json({ error: 'Erro ao buscar vídeos. Tente novamente.' })
+  }
+}
+
+export async function getVideoDetail(req, res) {
+  try {
+
+    const videoDetail = await getVideoById(req.params.videoId)
+    console.log('videoDetail: ', videoDetail);
+    return res.status(200).json(videoDetail)
+    
+  } catch (err) {
+    console.error('Erro no fetchVideoById:', err)
+    return res
+      .status(500)
+      .json({ error: 'Erro ao buscar os detalhes do vídeo. Tente novamente.' })
   }
 }
 

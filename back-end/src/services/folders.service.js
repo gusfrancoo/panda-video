@@ -18,13 +18,13 @@ export const getFolders = async (queryParams = {}) => {
 
   const cached = await redisClient.get(cacheKey)
   if (cached) {
-    console.log(`Cache folders:${cacheKey}`)
+    console.log('cached: ', cached);
+    
     return JSON.parse(cached)
   }
 
   console.log(`Cache MISS folders:${cacheKey}, buscando na API`)
   const { data } = await externalApi.get('/folders', { params: queryParams })
-  console.log(`Dados recebidos da API:`, data)
 
   if (Array.isArray(data?.folders)) {
     await redisClient.set(cacheKey, JSON.stringify(data), 'EX', 20)

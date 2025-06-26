@@ -9,18 +9,17 @@ export async function login(req, res) {
     return res.json({ token })
 
   } catch (err) {
+    const message = err.message || ''
+    const isExpectedAuthError = message === 'Usuário não encontrado' || message === 'Senha inválida'
 
-       const isAuthError = /não encontrado|inválida/.test(err.message)
-
-    const status = isAuthError ? 401 : 500
-    const userMessage = isAuthError
-      ? 'E-mail ou senha inválidos. Verifique seus dados.'
+    const status = isExpectedAuthError ? 400 : 500
+    const userMessage = isExpectedAuthError
+      ? message
       : 'Erro interno ao realizar login. Tente novamente mais tarde.'
 
     return res.status(status).json({
       error: userMessage,
-      debug: process.env.NODE_ENV === 'development' ? err.message : undefined
+      debug: process.env.NODE_ENV === 'development' ? message : undefined,
     })
-
   }
 }
