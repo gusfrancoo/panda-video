@@ -1,6 +1,6 @@
 <template>
 
-  <v-row class="d-flex align-center bg-white elevation-3" style="max-height: 80px;">
+  <v-row class="d-flex align-center bg-white " style="max-height: 80px; box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.3);">
     <v-container>
       <v-breadcrumbs
         class="mb-5 w-100 "
@@ -23,81 +23,75 @@
 
   </v-row>
 
-  <v-container class="mt-4">
-    <v-card v-if="!showVideo" class="pa-10 rounded-lg" elevation="4">
-      <v-row align="center" class="px-2 d-flex justify-end">
-        <v-col cols="12" lg="4" md="6">
-          <v-text-field
-            v-model="search"
-            :clearable="true"
+  <v-container class="mt-5">
+    <div class="items-center w-100 d-flex justify-center">
+      <v-card class="pa-10 rounded-lg w-100" max-width="1200px" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);">
+        <v-row align="center" class="px-2 d-flex justify-end">
+          <v-col cols="12" lg="4" md="6">
+            <v-text-field
+              v-model="search"
+              :clearable="true"
+              density="comfortable"
+              placeholder="Filtre por nome de pasta ou vídeo…"
+              prepend-inner-icon="mdi-magnify"
+              variant="solo"
+              @click:clear="search = ''"
+            />
+          </v-col>
+        </v-row>
+        <v-row class="px-5">
+          <v-data-table
+            v-model="selectedVideo"
+            class="rounded"
+            dense
             density="comfortable"
-            placeholder="Filtre por nome de pasta ou vídeo…"
-            prepend-inner-icon="mdi-magnify"
-            variant="solo"
-            @click:clear="search = ''"
-          />
-        </v-col>
-      </v-row>
-      <v-row class="px-5">
-        <v-data-table
-          v-model="selectedVideo"
-          class="rounded"
-          dense
-          density="comfortable"
-          :headers="columns"
-          :hover="true"
-          item-key="id"
-          :items="filteredItems"
-          :items-length="filteredItems.length"
-          :items-per-page="itemsPerPage"
-          :loading="isLoading"
-          :page="page"
-          :row-props="rowProps"
-          @click:row="(e, row) => handleRowClick(row)"
-          @update:page="val => page = val"
-        >
-          <template #no-data>
-            <v-sheet class="pa-6 text-center">
-              <v-icon color="grey lighten-1" large>mdi-video-off</v-icon>
-              <p>Nenhum vídeo ou pasta para exibir.</p>
-            </v-sheet>
-          </template>
+            :headers="columns"
+            :hover="true"
+            item-key="id"
+            :items="filteredItems"
+            :items-length="filteredItems.length"
+            :items-per-page="itemsPerPage"
+            :loading="isLoading"
+            :page="page"
+            :row-props="rowProps"
+            @click:row="(e, row) => handleRowClick(row)"
+            @update:page="val => page = val"
+          >
+            <template #no-data>
+              <v-sheet class="pa-6 text-center">
+                <v-icon color="grey lighten-1" large>mdi-video-off</v-icon>
+                <p>Nenhum vídeo ou pasta para exibir.</p>
+              </v-sheet>
+            </template>
 
-          <template #item.name="{ item }">
-            <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;">
-              <v-icon class="mr-1 " small>mdi-folder</v-icon>
-              <span class=" text-truncate text-no-wrap mr-1">{{ item.name }}</span>({{ item.count }})
-            </div>
-            <div v-else>
-              <v-icon class="mr-1" small>mdi-video</v-icon>
-              {{ item.title }}
-            </div>
-          </template>
+            <template #item.name="{ item }">
+              <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;">
+                <v-icon class="mr-1 " small>mdi-folder</v-icon>
+                <span class=" text-truncate text-no-wrap mr-1">{{ item.name }}</span>({{ item.count }})
+              </div>
+              <div v-else>
+                <v-icon class="mr-1" small>mdi-video</v-icon>
+                {{ item.title }}
+              </div>
+            </template>
 
-          <template #item.storage_size="{ item }">
-            {{ formatSize(item.storage_size) }}
-          </template>
-          <template #item.length="{ item }">
-            {{ formatLength(item.length) }}
-          </template>
-          <template #item.created_at="{ item }">
-            {{ formatDate(item.updated_at) }}
-          </template>
+            <template #item.storage_size="{ item }">
+              {{ formatSize(item.storage_size) }}
+            </template>
+            <template #item.length="{ item }">
+              {{ formatLength(item.length) }}
+            </template>
+            <template #item.created_at="{ item }">
+              {{ formatDate(item.updated_at) }}
+            </template>
 
-        </v-data-table>
+          </v-data-table>
 
-      </v-row>
+        </v-row>
 
-    </v-card>
+      </v-card>
+    </div>
 
-    <template v-else>
-      <Video
-        :video="selectedVideo"
-        @back="selectedVideo = null"
-        @save="onUpdateVideo"
-      />
-
-    </template>
   </v-container>
 
   <v-snackbar
@@ -120,10 +114,10 @@
   import { useRouter } from 'vue-router'
   import { getFolders } from '@/api/folders.api'
   import { getVideos } from '@/api/videos.api'
-  import Video from '@/components/Video.vue'
   import { formatDate, formatLength, formatSize } from '@/utils/utils'
 
   const router = useRouter()
+
   const showSnack = ref(false)
   const snackColor = ref('')
   const snackMessage = ref('')
@@ -132,7 +126,6 @@
   const search = ref('')
   const isLoading = ref(false)
   const selectedVideo = ref(null)
-  const showVideo = ref(false)
   const folders = ref([])
   const folderHistory = ref([])
 
@@ -142,11 +135,29 @@
   const page = ref(1)
   const itemsPerPage = ref(5)
 
+  const NAV_KEY = 'last_folder'
+  const HISTORY_KEY = 'folder_history'
+
+  function saveNavigation () {
+    localStorage.setItem(NAV_KEY, currentFolder.value ?? '')
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(folderHistory.value ?? []))
+  }
+
+  function loadNavigation () {
+    const savedId = localStorage.getItem(NAV_KEY)
+    const savedHistory = localStorage.getItem(HISTORY_KEY)
+
+    return {
+      folderId: savedId || null, // ⬅ não parseInt aqui
+      history: savedHistory ? JSON.parse(savedHistory) : [],
+    }
+  }
+
   const columns = [
-    { title: 'Nome', key: 'name', sortable: true },
-    { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right' },
-    { title: 'Duração', key: 'length', sortable: true, align: 'right' },
-    { title: 'Modificação', key: 'created_at', sortable: true },
+    { title: 'Nome', key: 'name', sortable: true, width: '50%' },
+    { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right', width: '15%' },
+    { title: 'Duração', key: 'length', sortable: true, align: 'right', width: '15%' },
+    { title: 'Modificação', key: 'created_at', sortable: true, width: '30%' },
   ]
 
   const tableItems = computed(() => {
@@ -197,9 +208,19 @@
   ])
 
   onMounted (async () => {
+    const token = localStorage.getItem('token')
+    console.log(token)
+
+    const publicPages = ['/login', '/unauthorized']
+    if (!token && !publicPages.includes(router.currentRoute.value.path)) {
+      router.replace('/login')
+    }
     isLoading.value = true
-    await fetchFolders()
-    await fetchVideos()
+    const { folderId, history } = loadNavigation()
+    currentFolder.value = folderId
+    folderHistory.value = history || []
+    await fetchFolders(currentFolder.value)
+    await fetchVideos(currentFolder.value)
     isLoading.value = false
   })
 
@@ -277,6 +298,7 @@
     }
 
     currentFolder.value = parentFolderId
+    saveNavigation()
     isLoading.value = false
   }
 
@@ -292,18 +314,8 @@
       await fetchFolders(item.id)
       await fetchVideos(item.id)
     } else {
-      selectedVideo.value = item
-      showVideo.value = true
+      console.log(item)
+      router.push(`/video/${item.id}`)
     }
   }
-
-  // function handleRowClick ({ item }) {
-  //   if (item.isFolder) {
-  //     enterFolder(item)
-  //   } else {
-  //     selectedVideo.value = item
-  //     showVideo.value = true
-  //   }
-  // }
-
 </script>
