@@ -30,6 +30,7 @@ async function fetchVideosById(params) {
 async function updateVideos(params, body) {
   try {
     const response = await externalApi.put(`/videos/${params}`, body)
+    
     return response.data
   } catch (error) {
     console.error('Erro ao atualizar video: ', error)
@@ -53,7 +54,6 @@ export async function getVideos(params) {
 
 export async function getVideoById(params) {
   const key = `video_${params}`
-  console.log(key);
   const cached = await redisClient.get(key)
   if (cached) {
     return JSON.parse(cached)
@@ -71,5 +71,5 @@ export async function update(params, body) {
   const key = `videos`
   await redisClient.del(key)
   const resp = await updateVideos(videoId, requestBody)
-  return resp.data
+  return resp
 }
