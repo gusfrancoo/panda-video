@@ -1,93 +1,130 @@
 <template>
 
-  <v-row class="d-flex align-center bg-white " style="max-height: 80px; box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.3);">
-    <v-container>
-      <v-breadcrumbs
-        class="mb-5 w-100 "
-        divider="/"
-        :items="breadcrumbs"
-        style="user-select: none; background-color: white;"
-      >
-        <template #item="{ item }">
-          <v-breadcrumbs-item
-            class="cursor-pointer text-h6 font-bold"
-            :disabled="!item.clickable"
-            @click="() => item.onClick && item.onClick()"
-          >
-            <v-icon class=" text-h6" small>{{ item.icon }}</v-icon>
-            {{ item.text }}
-          </v-breadcrumbs-item>
-        </template>
-      </v-breadcrumbs>
-    </v-container>
+  <v-container class="">
+    <div class="items-center w-100  d-flex justify-center">
 
-  </v-row>
+      <v-card class="pa-10 rounded-lg w-100 overflow-auto " style="max-width: 1200px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);">
 
-  <v-container class="mt-5">
-    <div class="items-center w-100 d-flex justify-center">
-      <v-card class="pa-10 rounded-lg w-100" max-width="1200px" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);">
-        <v-row align="center" class="px-2 d-flex justify-end">
-          <v-col cols="12" lg="4" md="6">
+        <div class="px-2 mb-5">
+          <span class="text-h6" style="font-weight: bold;">Seus Videos</span>
+        </div>
+        <v-expand-transition>
+          <div v-if="folderHistory.length > 0" class="px-2">
+            <v-btn
+              class="text-capitalize"
+              color="grey-darken-4"
+              elevation="2"
+              prepend-icon="mdi-arrow-left"
+              variant="elevated"
+              @click="backButton"
+            >
+              Voltar
+            </v-btn>
+          </div>
+        </v-expand-transition>
+        <v-row class="px-2 mb-4 justify-space-between" :class="[currentFolder != null ? 'mt-4' : 'mt-0']" no-gutters>
+          <v-col class="d-flex align-center " cols="12" md="4">
             <v-text-field
               v-model="search"
+              class="w-100"
               :clearable="true"
-              density="comfortable"
+              density="compact"
+              hide-details
               placeholder="Filtre por nome de pasta ou vídeo…"
               prepend-inner-icon="mdi-magnify"
+              style="height: 40px; margin: 0;"
               variant="solo"
               @click:clear="search = ''"
             />
           </v-col>
+
+          <v-col class="d-flex align-center justify-end" cols="12" md="6">
+            <v-select
+              v-model="itemsPerPage"
+              class="ma-0"
+              density="compact"
+              hide-details
+              :items="[5, 10, 20, 50]"
+              label="Itens por página"
+              style="max-width: 150px; height: 40px;"
+              variant="solo"
+            />
+          </v-col>
         </v-row>
-        <v-row class="px-5">
-          <v-data-table
-            v-model="selectedVideo"
-            class="rounded"
-            dense
-            density="comfortable"
-            :headers="columns"
+        <v-row class="px-6 w-100 d-flex flex-column" dense>
+
+          <v-card
+            v-for="item in paginatedItems"
+            :key="item.id"
+            class="mb-3 pa-4 rounded d-flex align-center cursor-pointer "
+            color="grey-lighten-4"
             :hover="true"
-            item-key="id"
-            :items="filteredItems"
-            :items-length="filteredItems.length"
-            :items-per-page="itemsPerPage"
-            :loading="isLoading"
-            :page="page"
-            :row-props="rowProps"
-            @click:row="(e, row) => handleRowClick(row)"
-            @update:page="val => page = val"
+            @click="handleRowClick({ item })"
           >
-            <template #no-data>
-              <v-sheet class="pa-6 text-center">
-                <v-icon color="grey lighten-1" large>mdi-video-off</v-icon>
-                <p>Nenhum vídeo ou pasta para exibir.</p>
-              </v-sheet>
-            </template>
-
-            <template #item.name="{ item }">
-              <div v-if="item.isFolder" class="d-flex align-center " style="max-width: 200px;">
-                <v-icon class="mr-1 " small>mdi-folder</v-icon>
-                <span class=" text-truncate text-no-wrap mr-1">{{ item.name }}</span>({{ item.count }})
-              </div>
-              <div v-else>
-                <v-icon class="mr-1" small>mdi-video</v-icon>
-                {{ item.title }}
+            <template v-if="item.isFolder">
+              <v-icon class="mr-4" color="primary" size="48">mdi-folder</v-icon>
+              <div>
+                <div class="text-subtitle-1 font-weight-medium">{{ item.name }}</div>
+                <div class="text-caption text-grey-darken-1">{{ item.count }} vídeos</div>
               </div>
             </template>
 
-            <template #item.storage_size="{ item }">
-              {{ formatSize(item.storage_size) }}
-            </template>
-            <template #item.length="{ item }">
-              {{ formatLength(item.length) }}
-            </template>
-            <template #item.created_at="{ item }">
-              {{ formatDate(item.updated_at) }}
-            </template>
+            <template v-else>
+              <v-img
+                aspect-ratio="16/9"
+                class="rounded mr-4"
+                cover
+                height="80"
+                :src="item.thumbnail"
+                width="140"
+              >
+                <template #placeholder>
+                  <v-skeleton-loader height="100" type="image" width="180" />
+                </template>
+              </v-img>
 
-          </v-data-table>
+              <div class="d-flex flex-column justify-space-between w-100">
+                <div class="d-flex justify-space-between align-center">
+                  <div class="text-subtitle-1 font-weight-medium text-truncate">
+                    {{ item.title || 'Sem título' }}
+                  </div>
+                  <v-chip
+                    class="ml-2 d-flex align-center"
+                    :color="item.status === 'CONVERTING' ? 'blue' : 'green'"
+                    label
+                    size="small"
+                  >
+                    <template v-if="item.status === 'CONVERTING'">
+                      <v-progress-circular
+                        class="mr-2"
+                        color="white"
+                        indeterminate
+                        size="14"
+                        width="2"
+                      />
+                      Convertendo...
+                    </template>
+                    <template v-else>
+                      {{ item.status }}
+                    </template>
+                  </v-chip>
+                </div>
+
+                <div class="d-flex justify-space-between text-caption mt-2">
+                  <div><v-icon class="mr-1" size="16">mdi-calendar</v-icon>{{ formatDate(item.created_at) }}</div>
+                  <div><v-icon class="mr-1" size="16">mdi-clock</v-icon>{{ formatLength(item.length) }}</div>
+                  <div><v-icon class="mr-1" size="16">mdi-database</v-icon>{{ formatSize(item.storage_size) }}</div>
+                </div>
+              </div>
+            </template>
+          </v-card>
 
         </v-row>
+        <v-pagination
+          v-model="page"
+          class="mt-4 align-self-center"
+          :length="Math.ceil(filteredItems.length / itemsPerPage)"
+        />
 
       </v-card>
     </div>
@@ -148,7 +185,7 @@
     const savedHistory = localStorage.getItem(HISTORY_KEY)
 
     return {
-      folderId: savedId || null, // ⬅ não parseInt aqui
+      folderId: savedId || null,
       history: savedHistory ? JSON.parse(savedHistory) : [],
     }
   }
@@ -173,7 +210,7 @@
     }
 
     const filteredVideos = videos.value.filter(v =>
-      !currentFolder.value || v.folder_id === currentFolder.value,
+      v.folder_id === currentFolder.value,
     ).map(v => ({ ...v, isFolder: false }))
 
     return [...items, ...filteredVideos]
@@ -196,9 +233,8 @@
     ...folderHistory.value.map((folder, index) => ({
       text: folder.name,
       icon: 'mdi-folder',
-      clickable: index !== folderHistory.value.length - 1, // só o último desativa
+      clickable: index !== folderHistory.value.length - 1,
       onClick: () => {
-        // Volta até aquele ponto do histórico
         const subPath = folderHistory.value.slice(0, index + 1)
         folderHistory.value = subPath
         fetchFolders(folder.id)
@@ -224,13 +260,11 @@
     isLoading.value = false
   })
 
-  function rowProps () {
-    return {
-      class: {
-        'cursor-pointer': true,
-      },
-    }
-  }
+  const paginatedItems = computed(() => {
+    const start = (page.value - 1) * itemsPerPage.value
+    const end = start + itemsPerPage.value
+    return filteredItems.value.slice(start, end)
+  })
 
   async function fetchVideos (folderId = null) {
     isLoading.value = true
@@ -242,6 +276,7 @@
         const { data } = await getVideos(folderId ? { folder_id: folderId } : {})
         const fetchedVideos = data.videos || []
         videos.value = fetchedVideos
+        console.log(videos.value)
         cacheData.set(folderId, fetchedVideos)
       } catch (error) {
         snackMessage.value = error.response?.data?.error || 'Erro ao buscar vídeos.'
@@ -302,13 +337,6 @@
     isLoading.value = false
   }
 
-  async function onUpdateVideo () {
-    await fetchVideos()
-    snackMessage.value = 'Vídeo atualizado com sucesso!'
-    snackColor.value = 'green'
-    showSnack.value = true
-  }
-
   async function handleRowClick ({ item }) {
     if (item.isFolder) {
       await fetchFolders(item.id)
@@ -318,4 +346,24 @@
       router.push(`/video/${item.id}`)
     }
   }
+
+  function backButton () {
+    if (folderHistory.value.length === 0) {
+      currentFolder.value = null
+      fetchFolders(null)
+      fetchVideos(null)
+      saveNavigation()
+      return
+    }
+
+    folderHistory.value.pop()
+
+    const previous = folderHistory.value.at(-1)
+
+    currentFolder.value = previous?.id || null
+    fetchFolders(currentFolder.value)
+    fetchVideos(currentFolder.value)
+    saveNavigation()
+  }
+
 </script>
