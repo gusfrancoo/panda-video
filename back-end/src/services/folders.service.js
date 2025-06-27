@@ -15,11 +15,8 @@ export const getFolders = async (queryParams = {}) => {
   const sortedKeys = Object.keys(queryParams).sort()
   const queryString = sortedKeys.map(key => `${key}=${queryParams[key]}`).join('&')
   const cacheKey = `folders:${queryString || 'all'}`
-
   const cached = await redisClient.get(cacheKey)
   if (cached) {
-    console.log('cached: ', cached);
-    
     return JSON.parse(cached)
   }
 
