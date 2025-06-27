@@ -4,11 +4,12 @@
       <v-row class="d-flex flex-wrap align-center justify-space-between">
         <v-toolbar-title>Panda Video</v-toolbar-title>
 
-        <v-tabs>
+        <v-tabs v-model="currentTab">
           <v-tab
             class="mx-2"
             text
             to="/home"
+            value="/home"
             @click="reload"
           >
             Home
@@ -16,6 +17,7 @@
           <v-tab
             class="mx-2"
             text
+            value="/logout"
             @click="onLogout"
           >
             Logout
@@ -31,6 +33,11 @@
   import { useRouter } from 'vue-router'
 
   const router = useRouter()
+  const route = useRoute()
+
+  const currentTab = computed(() => {
+    return route.path === '/home' ? '/home' : null
+  })
 
   async function reload () {
     router.replace('/home').then(() => {
