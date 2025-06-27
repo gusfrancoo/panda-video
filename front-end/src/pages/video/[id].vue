@@ -207,7 +207,6 @@
 
   async function fetchVideoDetails () {
     try {
-      // isLoading.value = true
       const { data } = await getVideo(videoId)
       video.value = data
     } catch (error) {
@@ -221,7 +220,7 @@
 
   async function updateVideos () {
     const title = titleEdited?.value.trim()
-    const description = descEdited?.value.trim() || ''
+    const description = descEdited.value ? descEdited.value.trim() : ''
     const folderId = video.value.folder_id
 
     if (!title) {
