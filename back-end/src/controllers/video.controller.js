@@ -17,7 +17,6 @@ export async function getVideoDetail(req, res) {
   try {
 
     const videoDetail = await getVideoById(req.params.videoId)
-    console.log('videoDetail: ', videoDetail);
     return res.status(200).json(videoDetail)
     
   } catch (err) {

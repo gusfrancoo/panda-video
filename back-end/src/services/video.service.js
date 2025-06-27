@@ -54,12 +54,13 @@ export async function getVideos(params) {
 
 export async function getVideoById(params) {
   const key = `video_${params}`
+  
   const cached = await redisClient.get(key)
   if (cached) {
     return JSON.parse(cached)
   }
   const video = await fetchVideosById(params)
-  // console.log(video)
+  
   await redisClient.set(key, JSON.stringify(video), 'EX', 20)
 
   return video
@@ -68,8 +69,9 @@ export async function getVideoById(params) {
 export async function update(params, body) {
   const videoId = params;
   const requestBody = body;
-  const key = `videos`
+  const key = `video_${params}`
   await redisClient.del(key)
+  await redisClient.del('videos')
   const resp = await updateVideos(videoId, requestBody)
   return resp
 }
