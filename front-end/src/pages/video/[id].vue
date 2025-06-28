@@ -1,7 +1,7 @@
 <template>
-  <v-container class=" relative">
-    <div class="d-flex justify-center">
-      <v-card class="pa-8 rounded-lg w-100" max-width="1200px" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);">
+  <v-container class="px-2 px-sm-0">
+    <div class="d-flex justify-center ">
+      <v-card class="pa-6 rounded-lg w-100" max-width="1200px" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);">
 
         <div class="mb-4">
           <v-btn
@@ -16,8 +16,8 @@
           </v-btn>
         </div>
 
-        <div class="w-100 d-flex justify-center mb-6 items-center">
-          <div class="player-container mb-4 mb-md-0">
+        <div class="w-100 d-flex justify-center items-center">
+          <div class="player-container mb-4 mb-md-0 ">
             <iframe
               :src="video.video_player"
               title="Player de Vídeo"
@@ -27,7 +27,7 @@
         </div>
         <v-divider class="my-6" />
         <v-row class="align-center justify-space-between mb-4">
-          <v-col cols="10">
+          <v-col cols="12" sm="10">
             <v-expand-transition>
               <div v-if="!isEditing" class="text-h5 font-weight-bold">
                 {{ video.title || 'Sem título' }}
@@ -45,7 +45,12 @@
               />
             </v-expand-transition>
           </v-col>
-          <v-col v-if="!isEditing" class="text-right" cols="2">
+          <v-col
+            v-if="!isEditing"
+            class="text-right d-none d-sm-flex"
+            cols="12"
+            sm="2"
+          >
             <v-btn
               class="text-white"
               color="blue-accent-3"
@@ -78,8 +83,20 @@
               />
             </v-expand-transition>
           </v-col>
+          <div v-if="!isEditing" class="d-flex d-sm-none justify-end mt-4 w-100">
+            <v-btn
+              class="text-white"
+              color="blue-accent-3"
+              variant="flat"
+              @click="toggleEdit"
+            >
+              <v-icon start>mdi-pencil</v-icon>
+              Editar
+            </v-btn>
+          </div>
+
         </v-row>
-        <div v-if="isEditing" class="d-flex justify-end ga-3">
+        <div v-if="isEditing" class="d-flex flex-column flex-sm-row justify-end ga-3">
           <v-btn
             color="red-darken-2"
             :disabled="isLoading"
@@ -102,14 +119,14 @@
             Salvar Alterações
           </v-btn>
         </div>
-        <v-divider class="my-6" />
+        <v-divider class="my-4" />
         <v-card
-          class="pa-6 mt-4"
+          class="pa-4"
           elevation="2"
           rounded="lg"
           style="background-color: #fafafa;"
         >
-          <v-card-title class="text-subtitle-1 font-weight-medium text-black mb-3">
+          <v-card-title class="text-subtitle-1 font-weight-medium text-black mb-2">
             Informações Técnicas
           </v-card-title>
 
@@ -171,14 +188,14 @@
     </div>
 
     <v-snackbar
-      v-model="showError"
-      color="error"
+      v-model="showSnack"
+      :color="snackColor"
       :timeout="2000"
       top
     >
-      {{ errorMessage }}
+      {{ snackMessage }}
       <template #actions>
-        <v-btn text @click="showError = false">Fechar</v-btn>
+        <v-btn text @click="showSnack = false">Fechar</v-btn>
       </template>
     </v-snackbar>
   </v-container>
@@ -191,8 +208,9 @@
 
   const isLoading = ref(false)
   const video = ref({})
-  const showError = ref(false)
-  const errorMessage = ref('')
+  const showSnack = ref(false)
+  const snackMessage = ref('')
+  const snackColor = ref('')
   const isEditing = ref(false)
   const titleEdited = ref('')
   const descEdited = ref('')
@@ -211,8 +229,7 @@
       video.value = data
     } catch (error) {
       isLoading.value = false
-      errorMessage.value = error.response?.data?.error || 'Ocorreu um erro ao salvar os dados do video. Tente novamente.'
-      showError.value = true
+      showSnackbar(error.response?.data?.error || 'Ocorreu um erro ao salvar os dados do vídeo.', 'error')
     } finally {
       isLoading.value = false
     }
@@ -224,8 +241,7 @@
     const folderId = video.value.folder_id
 
     if (!title) {
-      errorMessage.value = 'O título não pode estar vazio.'
-      showError.value = true
+      showSnackbar('O título não pode estar vazio.', 'error')
       return
     }
 
@@ -243,9 +259,9 @@
       const response = await update(video.value.id, { params })
       video.value = response.data
       isEditing.value = false
+      showSnackbar('Vídeo atualizado com sucesso!', 'success')
     } catch (error) {
-      errorMessage.value = error.response?.data?.error || 'Erro ao salvar os dados.'
-      showError.value = true
+      showSnackbar(error.response?.data?.error || 'Erro ao salvar os dados.', 'error')
     } finally {
       isLoading.value = false
     }
@@ -268,10 +284,14 @@
 
     const parts = name.split('.')
 
-    // Arquivos sem extensão
     if (parts.length <= 1) return ''
 
-    return parts.pop().toLowerCase() // pega a última parte e normaliza
+    return parts.pop().toLowerCase()
+  }
+  function showSnackbar (message, type = 'success') {
+    snackMessage.value = message
+    snackColor.value = type === 'error' ? 'error' : 'green'
+    showSnack.value = true
   }
 
 </script>
