@@ -2,10 +2,13 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY . .
+COPY prisma ./prisma  
+
 RUN npm install && npm install -g nodemon
 
-COPY . .
+
+RUN npx prisma generate
 
 EXPOSE 3000
 
