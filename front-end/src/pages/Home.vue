@@ -41,7 +41,6 @@
               :class="{ 'bg-grey-lighten-3': paginatedItems.length === 0 }"
               :clearable="true"
               density="compact"
-              :disabled="paginatedItems.length === 0"
               hide-details
               placeholder="Filtre por nome de pasta ou vídeo…"
               prepend-inner-icon="mdi-magnify"
