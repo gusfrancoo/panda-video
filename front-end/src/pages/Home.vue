@@ -272,7 +272,6 @@
 
   const page = ref(Number(localStorage.getItem('page')) || 1)
   const itemsPerPage = ref(Number(localStorage.getItem('items_per_page')) || 5)
-  console.log(Number(localStorage.getItem('items_per_page')))
   const NAV_KEY = 'last_folder'
   const HISTORY_KEY = 'folder_history'
 
@@ -341,6 +340,11 @@
 
   watch(itemsPerPage, newVal => {
     localStorage.setItem('items_per_page', JSON.stringify(newVal))
+    const totalPages = Math.ceil(filteredItems.value.length / newVal)
+    
+    if (page.value > totalPages) {
+      page.value = totalPages || 1
+    }
   })
 
   const paginatedItems = computed(() => {
@@ -359,7 +363,6 @@
         const { data } = await getVideos(folderId ? { folder_id: folderId } : {})
         const fetchedVideos = data.videos || []
         videos.value = fetchedVideos
-        console.log(videos.value)
         cacheData.set(folderId, fetchedVideos)
       } catch (error) {
         snackMessage.value = error.response?.data?.error || 'Erro ao buscar vídeos.'
@@ -381,7 +384,6 @@
         : cached
     } else {
       try {
-        console.log('Aqui')
         const { data } = await getFolders(parentFolderId ? { parent_folder_id: parentFolderId } : {})
         const fetchedFolders = data.folders || []
         folders.value = parentFolderId === null
@@ -426,7 +428,6 @@
       await fetchFolders(item.id)
       await fetchVideos(item.id)
     } else {
-      console.log(item)
       router.push(`/video/${item.id}`)
     }
   }
