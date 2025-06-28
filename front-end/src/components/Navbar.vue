@@ -2,7 +2,7 @@
   <v-app-bar app color="grey-darken-4" elevation="0">
     <v-container>
       <v-row class="d-flex flex-wrap align-center justify-space-between">
-        <v-toolbar-title>Panda Video</v-toolbar-title>
+        <v-toolbar-title class="cursor-pointer" @click="reload()">Panda Video</v-toolbar-title>
 
         <v-tabs v-model="currentTab">
           <v-tab

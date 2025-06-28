@@ -12,7 +12,7 @@
             variant="elevated"
             @click="backButton"
           >
-            Voltar para Home
+            Voltar
           </v-btn>
         </div>
 

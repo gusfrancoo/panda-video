@@ -39,7 +39,6 @@
               v-model="search"
               class="w-100"
               :class="{ 'bg-grey-lighten-3': paginatedItems.length === 0 }"
-              :clearable="true"
               density="compact"
               hide-details
               placeholder="Filtre por nome de pasta ou vídeo…"
