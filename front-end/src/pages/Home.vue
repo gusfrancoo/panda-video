@@ -341,7 +341,7 @@
   watch(itemsPerPage, newVal => {
     localStorage.setItem('items_per_page', JSON.stringify(newVal))
     const totalPages = Math.ceil(filteredItems.value.length / newVal)
-    
+
     if (page.value > totalPages) {
       page.value = totalPages || 1
     }
