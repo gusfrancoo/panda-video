@@ -37,7 +37,6 @@ services:
       PORT: 3000
       DATABASE_URL: postgres://postgres:postgres@db:5432/pandavideo
       REDIS_URL: redis://redis:6379
-      JWT_SECRET: bjPfSL8gwqdc4GnK6gjjbOvDlZ4UYFGSLT2WUVvKD2NgJmw7s4IrZr5SrlT7vVfx
       PANDAVIDEO_API_URL: https://api-v2.pandavideo.com.br
       PANDAVIDEO_API_KEY: seu_api_token_aqui
     depends_on:
