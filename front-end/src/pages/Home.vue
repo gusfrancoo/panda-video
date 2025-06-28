@@ -69,7 +69,6 @@
             </div>
           </v-row>
 
-          <!-- DESKTOP -->
           <v-responsive class="d-none d-sm-flex w-100">
             <v-col cols="12">
               <v-card
@@ -138,8 +137,6 @@
               </v-card>
             </v-col>
           </v-responsive>
-
-          <!-- MOBILE -->
           <v-responsive class="d-sm-none w-100">
             <v-row dense>
               <v-col
@@ -267,16 +264,15 @@
   const currentFolder = ref('')
   const search = ref('')
   const isLoading = ref(false)
-  const selectedVideo = ref(null)
   const folders = ref([])
   const folderHistory = ref([])
 
   const cacheFolder = new Map()
   const cacheData = new Map()
 
-  const page = ref(1)
-  const itemsPerPage = ref(5)
-
+  const page = ref(Number(localStorage.getItem('page')) || 1)
+  const itemsPerPage = ref(Number(localStorage.getItem('items_per_page')) || 5)
+  console.log(Number(localStorage.getItem('items_per_page')))
   const NAV_KEY = 'last_folder'
   const HISTORY_KEY = 'folder_history'
 
@@ -294,13 +290,6 @@
       history: savedHistory ? JSON.parse(savedHistory) : [],
     }
   }
-
-  const columns = [
-    { title: 'Nome', key: 'name', sortable: true, width: '50%' },
-    { title: 'Tamanho', key: 'storage_size', sortable: true, align: 'right', width: '15%' },
-    { title: 'Duração', key: 'length', sortable: true, align: 'right', width: '15%' },
-    { title: 'Modificação', key: 'created_at', sortable: true, width: '30%' },
-  ]
 
   const tableItems = computed(() => {
     const items = []
@@ -328,26 +317,6 @@
     })
   })
 
-  const breadcrumbs = computed(() => [
-    {
-      text: 'Home',
-      icon: 'mdi-home',
-      clickable: folderHistory.value.length > 0,
-      onClick: () => fetchFolders(),
-    },
-    ...folderHistory.value.map((folder, index) => ({
-      text: folder.name,
-      icon: 'mdi-folder',
-      clickable: index !== folderHistory.value.length - 1,
-      onClick: () => {
-        const subPath = folderHistory.value.slice(0, index + 1)
-        folderHistory.value = subPath
-        fetchFolders(folder.id)
-        fetchVideos(folder.id)
-      },
-    })),
-  ])
-
   onMounted (async () => {
     const token = localStorage.getItem('token')
 
@@ -364,6 +333,14 @@
 
     await fetchVideos(currentFolder.value)
     isLoading.value = false
+  })
+
+  watch(page, newVal => {
+    localStorage.setItem('page', JSON.stringify(newVal))
+  })
+
+  watch(itemsPerPage, newVal => {
+    localStorage.setItem('items_per_page', JSON.stringify(newVal))
   })
 
   const paginatedItems = computed(() => {
