@@ -32,7 +32,7 @@ services:
       - backend_node_modules:/usr/src/app/node_modules
     command: ["npm", "run", "dev"]
     ports:
-      - "0:3000"
+      - "3000:3000"
     environment:
       PORT: 3000
       DATABASE_URL: postgres://postgres:postgres@db:5432/pandavideo
@@ -54,7 +54,7 @@ services:
       - /usr/src/app/node_modules
     command: ["npm", "run", "dev"]
     ports:
-      - "0:5173"
+      - "5173:5173"
     environment:
       VITE_API_URL: http://localhost:3000
     depends_on:
