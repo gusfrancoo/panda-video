@@ -68,7 +68,7 @@
           </v-row>
 
           <v-responsive class="d-none d-sm-flex w-100">
-            <v-col cols="12">
+            <v-col cols="12" style="min-height: 50vh;">
               <v-card
                 v-for="item in paginatedItems"
                 :key="'desktop-' + item.id"
@@ -101,8 +101,18 @@
 
                   <div class="d-flex flex-column justify-space-between w-100">
                     <div class="d-flex justify-space-between align-center">
-                      <div class="text-subtitle-1 font-weight-medium text-truncate">
-                        {{ item.title || 'Sem título' }}
+                      <div class="d-flex flex-row text-subtitle-1 font-weight-medium text-truncate ga-2 align-center justify-start">
+                        {{ removeExtension(item.title) || 'Sem título' }}
+                        <v-chip
+                          class="d-flex align-center"
+                          color="blue"
+                          label
+                          size="small"
+                          style="height: 20px;"
+                          variant="tonal"
+                        >
+                          .{{ getExtension(item.title) }}
+                        </v-chip>
                       </div>
                       <v-chip
                         class="ml-2 d-flex align-center"
@@ -135,7 +145,7 @@
               </v-card>
             </v-col>
           </v-responsive>
-          <v-responsive class="d-sm-none w-100">
+          <v-responsive class="d-sm-none w-100 ">
             <v-row dense>
               <v-col
                 v-for="item in paginatedItems"
@@ -174,10 +184,10 @@
                     </v-img>
                     <div class="d-flex flex-column w-100">
                       <div class="mt-2 text-caption font-weight-medium text-truncate w-100">
-                        {{ item.title || 'Sem título' }}
+                        {{ removeExtension(item.title) || 'Sem título' }}
                       </div>
                       <v-chip
-                        class="ml-2 d-flex align-center"
+                        class="d-flex justify-center"
                         :color="item.status === 'CONVERTING' ? 'blue' : 'green'"
                         label
                         size="small"
@@ -251,7 +261,7 @@
   import { useRouter } from 'vue-router'
   import { getFolders } from '@/api/folders.api'
   import { getVideos } from '@/api/videos.api'
-  import { formatDate, formatLength, formatSize } from '@/utils/utils'
+  import { formatDate, formatLength, formatSize, getExtension, removeExtension } from '@/utils/utils'
 
   const router = useRouter()
 

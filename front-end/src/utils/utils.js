@@ -27,3 +27,24 @@ export function formatLength (sec) {
   const ss = Math.floor(s % 60).toString().padStart(2, '0')
   return `${m}:${ss}`
 }
+
+export function getExtension (name) {
+  if (!name || typeof name !== 'string') {
+    return ''
+  }
+
+  const parts = name.split('.')
+
+  if (parts.length <= 1) {
+    return ''
+  }
+
+  return parts.pop().toLowerCase()
+}
+
+export function removeExtension (name) {
+  if (!name || typeof name !== 'string') {
+    return ''
+  }
+  return name.replace(/\.[^/.]+$/, '')
+}

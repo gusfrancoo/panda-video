@@ -30,7 +30,7 @@
           <v-col cols="12" sm="10">
             <v-expand-transition>
               <div v-if="!isEditing" class="text-h5 font-weight-bold">
-                {{ video.title || 'Sem título' }}
+                {{ removeExtension(video.title) || 'Sem título' }}
               </div>
             </v-expand-transition>
             <v-expand-transition>
@@ -204,7 +204,7 @@
 <script setup>
   import { useRoute, useRouter } from 'vue-router'
   import { getVideo, update } from '@/api/videos.api'
-  import { formatDate, formatLength, formatSize } from '@/utils/utils'
+  import { formatDate, formatLength, formatSize, getExtension, removeExtension } from '@/utils/utils'
 
   const isLoading = ref(false)
   const video = ref({})
@@ -236,7 +236,8 @@
   }
 
   async function updateVideos () {
-    const title = titleEdited?.value.trim()
+    const originalExtension = getExtension(video.value.title)
+    const title = `${titleEdited.value.trim()}.${originalExtension}`
     const description = descEdited.value ? descEdited.value.trim() : ''
     const folderId = video.value.folder_id
 
@@ -274,20 +275,11 @@
   function toggleEdit () {
     isEditing.value = !isEditing.value
     if (isEditing) {
-      titleEdited.value = video.value.title
+      titleEdited.value = removeExtension(video.value.title)
       descEdited.value = video.value.description
     }
   }
 
-  function getExtension (name) {
-    if (!name || typeof name !== 'string') return ''
-
-    const parts = name.split('.')
-
-    if (parts.length <= 1) return ''
-
-    return parts.pop().toLowerCase()
-  }
   function showSnackbar (message, type = 'success') {
     snackMessage.value = message
     snackColor.value = type === 'error' ? 'error' : 'green'
