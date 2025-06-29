@@ -12,7 +12,6 @@ const externalApi = axios.create({
 })
 
 export const getFolders = async (queryParams = {}) => {
-  console.log('aaaaa');
   try {
     
     const sortedKeys = Object.keys(queryParams).sort()

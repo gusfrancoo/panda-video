@@ -46,7 +46,7 @@
   }
 
   async function onLogout () {
-    localStorage.removeItem('token')
+    localStorage.clear()
     router.push('/login')
   }
 </script>
