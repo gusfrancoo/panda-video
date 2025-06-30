@@ -49,4 +49,9 @@ Um usuário de exemplo é inserido automaticamente no banco:
 
 Use essas credenciais para acessar a aplicação.
 
+---
+
+⚠️ Atenção
+Certifique-se de que as portas 3000 e 5173 não estão em uso antes de rodar o projeto, ou o docker compose poderá falhar por conflito de portas.
+
 
